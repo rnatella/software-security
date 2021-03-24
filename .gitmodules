@@ -1,0 +1,6 @@
+[submodule "fuzzing/heartbleed/openssl"]
+	path = fuzzing/heartbleed/openssl
+	url = https://github.com/openssl/openssl/
+[submodule "fuzzing/libxml2/libxml2"]
+	path = fuzzing/libxml2/libxml2
+	url = https://github.com/GNOME/libxml2
