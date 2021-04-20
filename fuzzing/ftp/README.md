@@ -1,15 +1,4 @@
-Clone, patch, and install boofuzz from GitHub:
-
-```
-$ git submodule update --init --recursive
-
-$ patch -d boofuzz -p1 < boofuzz-isalive.patch
-
-$ cd boofuzz
-$ pip3 install .
-$ cd ..
-```
-
+# Installing the vulnerable FTP server
 
 Patch and build the (vulnerable) FTP server:
 
@@ -58,6 +47,70 @@ ftp> quit
 
 
 
+
+
+# metasploit (generation fuzzing)
+
+To install metasploit on Ubuntu 20.04:
+
+```
+$ sudo apt install gem
+$ sudo gem update
+
+$ sudo apt install ruby-dev
+$ sudo apt install ruby-pg
+$ sudo apt install libpq-dev
+$ sudo apt install libpcap-dev
+$ sudo apt-get install libsqlite3-dev
+
+$ git clone https://github.com/rapid7/metasploit-framework.git
+
+$ cd metasploit-framework/
+$ sudo gem install bundler
+$ bundle install
+```
+
+
+Then, run metasplot with:
+```
+$ ./msfconsole
+
+msf6 > search fuzzers
+
+search fuzzers
+
+Matching Modules
+================
+
+   #   Name                                            Disclosure Date  Rank    Check  Description
+   -   ----                                            ---------------  ----    -----  -----------
+   ...
+   18  auxiliary/fuzzers/ftp/ftp_pre_post                               normal  No     Simple FTP Fuzzer
+   ...
+
+msf6 > use auxiliary/fuzzers/ftp/ftp_pre_post 
+
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RHOSTS 127.0.0.1
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
+
+```
+
+
+
+# boofuzz (generation fuzzing)
+
+Clone, patch, and install boofuzz from GitHub:
+
+```
+$ git submodule update --init --recursive
+
+$ patch -d boofuzz -p1 < boofuzz-isalive.patch
+
+$ cd boofuzz
+$ pip3 install .
+$ cd ..
+```
+
 To perform fuzzing on the FTP server, first run the process monitor.
 On crashes of the FTP server, it will store the core dump, and restart the FTP server for the next test.
 
@@ -83,4 +136,42 @@ $ python3 ftp_hpa.py
 
 You can check the progress through the shell and the browser at http://localhost:26000
 
+
+# mutiny (mutation fuzzing)
+
+Note: this tool still runs on Python 2.
+To install Python 2 on Ubuntu 20.04:
+
+```
+$ sudo apt install python2
+
+$ curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+
+$ sudo python2 get-pip.py
+
+$ pip2 install scapy
+```
+
+First, build the radamsa tool (used by mutiny):
+```
+$ git clone https://github.com/Cisco-Talos/mutiny-fuzzer
+
+$ tar zxf radamsa-v0.6.tar.gz
+$ cd radamsa-v0.6/
+$ make
+$ cd ..
+
+```
+
+To perform fuzzing through mutation, you need to collect a sample of FTP traffic in PCAP format:
+```
+$ sudo tcpdump -i lo  -w ftp.pcap "port 2121"
+```
+
+To run the fuzzer:
+```
+python2 mutiny_prep.py -a ftp.pcap
+
+python2 mutiny.py ftp-0.fuzzer 127.0.0.1
+```
 
