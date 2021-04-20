@@ -4,3 +4,6 @@
 [submodule "fuzzing/libxml2/libxml2"]
 	path = fuzzing/libxml2/libxml2
 	url = https://github.com/GNOME/libxml2
+[submodule "fuzzing/ftp/boofuzz"]
+	path = fuzzing/ftp/boofuzz
+	url = https://github.com/jtpereyda/boofuzz

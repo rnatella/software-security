@@ -1,0 +1,42 @@
+diff -uNr a/hpaftpd.c b/hpaftpd.c
+--- a/hpaftpd.c	2007-07-01 11:47:45.000000000 +0200
++++ b/hpaftpd.c	2021-04-19 17:43:25.869005227 +0200
+@@ -88,8 +88,8 @@
+ #define CMD_BAD_OPTIONS		1
+ #define CMD_VERSION		2
+ 
+-//#define __DBG__		1		/* Enable debug mode (without deamon()) */
+-//#define __DBG_USER__	1
++#define __DBG__		1		/* Enable debug mode (without deamon()) */
++#define __DBG_USER__	1
+ 
+ #ifdef __DBG__
+ #define __DBG(_arg, ...)	printf(_arg, ##__VA_ARGS__)
+@@ -1405,6 +1405,7 @@
+ //    }
+ #endif
+ 
++    /*
+     if(setregid(cfg.gid, cfg.gid)){
+ 	syslog(LOG_ERR, "Can't setgid user %s, %m", cfg.user);
+ 	return 6;
+@@ -1413,6 +1414,7 @@
+ 	syslog(LOG_ERR, "Can't setuid user %s, %m", cfg.user);
+ 	return 7;
+     }
++    */
+ 
+     main_loop();
+ 
+diff -uNr a/minilib.c b/minilib.c
+--- a/minilib.c	2007-06-16 11:39:14.000000000 +0200
++++ b/minilib.c	2021-04-20 03:40:53.887695217 +0200
+@@ -91,7 +91,7 @@
+     int i;
+ 
+     ltrim(rtrim(str, CNF_EMPTY), CNF_EMPTY);
+-    for(i = 0; str[i] && (!strchr(CNF_EMPTY, str[i])) && i < key_max; i++)
++    for(i = 0; str[i] && (!strchr(CNF_EMPTY, str[i])); i++)
+         key[i] = str[i];
+     key[i] = '\0';
+     if(str[i]){
