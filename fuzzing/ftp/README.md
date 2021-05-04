@@ -5,10 +5,12 @@ Patch and build the (vulnerable) FTP server:
 ```
 $ tar zxf hpaftpd.tgz
 
-$ patch -d hpaftpd-1.05/  -p1 < hpaftpd-vulnerable.patch
-
 $ cd hpaftpd-1.05
+
+$ patch -p1 < hpaftpd-debug.patch
+
 $ make CFLAGS="-g"
+
 $ cd ..
 ```
 
@@ -17,6 +19,9 @@ To test that the FTP server actually works, run this command:
 ```
 $ ./hpaftpd-1.05/hpaftpd -p2121  -l -unobody
 ```
+
+**Note**: To make it easier to run and fuzz the server, we are not running the FTP with chroot jailing and de-privileging.
+
 
 On another shell, try to connect to the FTP server:
 ```
@@ -33,9 +38,9 @@ Remote system type is UNIX.
 ftp> ls
 200 Command ok.
 150 Open data connection
--rw-------    1 root root 1964400640 Sep 27 18:53 swapfile
 drwx------    2 root root     16384 Sep 27 18:53 lost+found
 drwxr-xr-x    2 root root      4096 Jul 31 18:27 mnt
+....
 226 Transfer complete
 
 ftp> pwd
@@ -91,6 +96,7 @@ Matching Modules
 msf6 > use auxiliary/fuzzers/ftp/ftp_pre_post 
 
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RHOSTS 127.0.0.1
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RPORT  2121
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
 
 ```
@@ -156,6 +162,8 @@ First, build the radamsa tool (used by mutiny):
 ```
 $ git clone https://github.com/Cisco-Talos/mutiny-fuzzer
 
+$ cd mutiny-fuzzer
+
 $ tar zxf radamsa-v0.6.tar.gz
 $ cd radamsa-v0.6/
 $ make
@@ -170,8 +178,8 @@ $ sudo tcpdump -i lo  -w ftp.pcap "port 2121"
 
 To run the fuzzer:
 ```
-python2 mutiny_prep.py -a ftp.pcap
+$ python2 mutiny_prep.py -a ftp.pcap
 
-python2 mutiny.py ftp-0.fuzzer 127.0.0.1
+$ python2 mutiny.py ftp-0.fuzzer 127.0.0.1
 ```
 

@@ -1,0 +1,30 @@
+diff -uNr a/hpaftpd.c b/hpaftpd.c
+--- a/hpaftpd.c	2007-07-01 11:47:45.000000000 +0200
++++ b/hpaftpd.c	2021-04-19 17:43:25.869005227 +0200
+@@ -88,8 +88,8 @@
+ #define CMD_BAD_OPTIONS		1
+ #define CMD_VERSION		2
+ 
+-//#define __DBG__		1		/* Enable debug mode (without deamon()) */
+-//#define __DBG_USER__	1
++#define __DBG__		1		/* Enable debug mode (without deamon()) */
++#define __DBG_USER__	1
+ 
+ #ifdef __DBG__
+ #define __DBG(_arg, ...)	printf(_arg, ##__VA_ARGS__)
+@@ -1405,6 +1405,7 @@
+ //    }
+ #endif
+ 
++    /*
+     if(setregid(cfg.gid, cfg.gid)){
+ 	syslog(LOG_ERR, "Can't setgid user %s, %m", cfg.user);
+ 	return 6;
+@@ -1413,6 +1414,7 @@
+ 	syslog(LOG_ERR, "Can't setuid user %s, %m", cfg.user);
+ 	return 7;
+     }
++    */
+ 
+     main_loop();
+ 
