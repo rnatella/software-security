@@ -34,7 +34,7 @@ In order to run the example about cookies following **www.csrflab-defense.com** 
 
 `<h2>Experiment B: click <a href="http://www.csrflab-attacker.com/testing.html">Link B</a></h2>`
 
-and add the port number assained in docker-compose file (in this case 8080)
+and add the port number assaigned in docker-compose file (in this case 8080)
 
 `<h2>Experiment B: click <a href="http://www.csrflab-attacker.com:8080/testing.html">Link B</a></h2>`
 
