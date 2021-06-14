@@ -9,8 +9,11 @@ You can add the following lines to `/etc/hosts`:
 Changing and saving the file will have immediate effect.
 
 If you are deploying this lab on your own **Mac** machine, you need to set the lab's hostnames to localhost.
-Due to following problem: 
-`The docker (Linux) bridge network is not reachable from the macOS host.`
+
+Due to the following problem: 
+
+`The docker (Linux) bridge network is not reachable from the macOS host`
+
 you need to uncomment this two lines in the docker-compose file: 
 
 ```
