@@ -30,4 +30,13 @@ Changing and saving the file will have immediate effect.
 
 P.S: you need to use the port 8080 in order to successfully connect to the www.csrflab-attacker.com site.
 
+In order to run the example about cookies following **www.csrflab-defense.com** link, you have to modify in image_www/defense/index.php the following line:
+
+`<h2>Experiment B: click <a href="http://www.csrflab-attacker.com/testing.html">Link B</a></h2>`
+
+and add the port number assained in docker-compose file (in this case 8080)
+
+`<h2>Experiment B: click <a href="http://www.csrflab-attacker.com:8080/testing.html">Link B</a></h2>`
+
+
 For more details check out the documentation: https://docs.docker.com/docker-for-mac/networking/#known-limitations-use-cases-and-workarounds 
