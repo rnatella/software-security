@@ -6,6 +6,10 @@ services:
         image: seed-image-www-sqli
         container_name: www-10.9.0.5
         tty: true
+        # ports:
+        #     - "80:80"
+        depends_on:
+            - mysql
         networks:
             net-10.9.0.0:
                 ipv4_address: 10.9.0.5
