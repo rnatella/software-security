@@ -6,6 +6,10 @@ services:
         image: seed-image-www-csrf
         container_name: elgg-10.9.0.5
         tty: true
+        # ports:
+        #     - "80:80"
+        depends_on:
+            - mysql
         networks:
             net-10.9.0.0:
                 ipv4_address: 10.9.0.5
@@ -30,6 +34,10 @@ services:
         image: seed-image-attacker-csrf
         container_name: attacker-10.9.0.105
         tty: true
+        # ports:
+        #     - "8080:80"
+        depends_on:
+            - mysql
         volumes:
                 - ./attacker:/var/www/attacker
         networks:
