@@ -1,3 +1,5 @@
+# Running the lab on Linux
+
 If you are deploying this lab on your own **Linux** machine, you need to set the lab's hostnames to localhost.
 
 You can add the following lines to `/etc/hosts`:
@@ -10,6 +12,8 @@ You can add the following lines to `/etc/hosts`:
 
 Changing and saving the file will have immediate effect.
 
+# Running the lab on MacOS X
+
 If you are deploying this lab on your own **Mac** machine, you need to set the lab's hostnames to localhost.
 
 Due to the following problem: 
@@ -18,7 +22,7 @@ Due to the following problem:
 
 you need to uncomment lines regarding ports in the docker-compose file. 
 
-In Addition, you can add the following lines to `/etc/hosts`:
+In addition, you can add the following lines to `/etc/hosts`:
 ```
 # For CSRF Lab
 127.0.0.1        www.csrflabelgg.com
@@ -34,7 +38,7 @@ In order to run the example about cookies following **www.csrflab-defense.com** 
 
 `<h2>Experiment B: click <a href="http://www.csrflab-attacker.com/testing.html">Link B</a></h2>`
 
-and add the port number assaigned in docker-compose file (in this case 8080)
+and add the port number assigned in docker-compose file (in this case 8080)
 
 `<h2>Experiment B: click <a href="http://www.csrflab-attacker.com:8080/testing.html">Link B</a></h2>`
 
