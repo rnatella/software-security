@@ -1,3 +1,7 @@
+# Troubleshooting
+
+Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for suggestions to fix problems.
+
 # Running the lab on Linux
 
 If you are deploying this lab on your own **Linux** machine, you need to set the lab's hostnames to localhost.
