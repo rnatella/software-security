@@ -8,18 +8,16 @@ This is adapted from the libFuzzer example here: https://github.com/google/fuzze
 - Configure and build with ASAN:
 
       	cd openssl
-      	CC=afl-clang-fast CXX=afl-clang-fast++ ./config -d
-      	AFL_USE_ASAN=1 make
+      	<env. variables CC, CXX> ./config -d
+      	<env. variable for ASAN> make
 
   (note you can do "make -j" for faster builds, but there is a race that makes this fail occasionally)
 
-  (This target doesn't work with afl-clang-lto(++) at the time of writing)
-
-Now fix up the code in handshake.cc to work with afl. (or copy it out of ANSWERS.md!)
+Now fix up the code in handshake.cc to work with afl. (if you get stuck, check ANSWERS.md)
 
 Build our target:
 
-    AFL_USE_ASAN=1 afl-clang-fast++ -g handshake.cc openssl/libssl.a openssl/libcrypto.a -o handshake -I openssl/include -ldl
+    <env. var. ASAN> <compiler> -g handshake.cc openssl/libssl.a openssl/libcrypto.a -o handshake -I openssl/include -ldl
 
 Pre-emptive hint:
 
