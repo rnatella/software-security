@@ -10,6 +10,8 @@ int main(int argc, char **argv) {
 
     xmlDocPtr doc = xmlReadFile(argv[1], NULL, 0);
 
+    xmlDocDump(stdout, doc);
+
     if (doc != NULL) {
         xmlFreeDoc(doc);
     }

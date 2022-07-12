@@ -7,12 +7,18 @@ int main(int argc, char **argv) {
     }
 
     xmlInitParser();
+
     while (__AFL_LOOP(1000)) {
+
         xmlDocPtr doc = xmlReadFile(argv[1], NULL, 0);
+
+        xmlDocDump(stdout, doc);
+
         if (doc != NULL) {
             xmlFreeDoc(doc);
         }
     }
+
     xmlCleanupParser();
 
     return(0);

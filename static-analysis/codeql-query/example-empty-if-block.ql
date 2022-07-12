@@ -7,7 +7,7 @@
 
 import java
 
-from IfStmt ifstmt, Block block
+from IfStmt ifstmt, BlockStmt block
 where
   block = ifstmt.getThen() and
   block.getNumStmt() = 0
