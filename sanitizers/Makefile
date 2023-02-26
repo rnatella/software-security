@@ -1,11 +1,9 @@
-#!/usr/bin/make
-
 CC=gcc
 CFLAGS=-O0 -g
 
 titanic: titanic.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) titanic.c -o titanic
 
 .PHONY: clean
 clean:
-	-rm titanic
+	rm -f titanic
