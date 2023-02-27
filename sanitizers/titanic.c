@@ -6,10 +6,10 @@
 /* 3 is plenty. How far do we expect this thing to travel, anyway? */
 #define DIGITS_LENGTH (3)
 
-char * full_steam_ahead(unsigned distance)
+char * full_steam_ahead(unsigned short distance)
 {
     static const char LOG_TEXT[] = "miles, still unsinkable!\n";
-    static const TOTAL_LENGTH    = sizeof(LOG_TEXT) + DIGITS_LENGTH + 1;
+    static const int TOTAL_LENGTH = sizeof(LOG_TEXT) + DIGITS_LENGTH + 1;
 
     const unsigned tugboat_distance; /* TODO: who do we ask about this? */
     const unsigned total_distance = distance + tugboat_distance;
