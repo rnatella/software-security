@@ -1,0 +1,42 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VM_NAME = 'software-security'
+VM_BOX  = 'ubuntu/jammy64'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = VM_BOX
+  config.vm.hostname = VM_NAME
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  config.vagrant.plugins = "vagrant-docker-compose"
+  config.vagrant.plugins = "vagrant-vbguest"
+
+  # install docker and docker-compose
+  config.vm.provision :docker
+  config.vm.provision :docker_compose, compose_version: "1.29.2"
+
+  #config.vbguest.auto_update = false
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = 2048
+
+    # https://stackoverflow.com/questions/24231620/how-to-set-vagrant-virtualbox-video-memory
+    # https://www.virtualbox.org/manual/ch08.html#vboxmanage-cmd-overview
+    vb.customize ["modifyvm", :id, "--vram", "32"]
+    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
+    vb.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+    vb.customize ["modifyvm", :id, "--draganddrop", "bidirectional"]
+    vb.customize ["modifyvm", :id, "--uart1", "off"]
+  end
+
+  config.vm.provision "file", source: "./ova-cleanup.sh", destination: "/home/vagrant/ova-cleanup.sh"
+
+  config.vm.provision "shell", path: "./vm-setup.sh"
+
+end
+
