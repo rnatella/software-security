@@ -10,7 +10,11 @@ export PASSWORD="unina"
 # Create user
 adduser --disabled-password --gecos "" $USERNAME
 echo "$USERNAME:$PASSWORD"|chpasswd
+
+# Add user to sudoers, disable password
 usermod -a -G sudo $USERNAME
+echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
 
 # Install updates
 apt-get update
@@ -311,9 +315,9 @@ netplan apply
 
 
 # Widget for showing IP address
-sudo add-apt-repository ppa:nico-marcq/indicator-ip
-sudo apt-get update
-sudo apt-get install -y python3-indicator-ip gir1.2-appindicator3-0.1
+add-apt-repository ppa:nico-marcq/indicator-ip
+apt-get update
+apt-get install -y python3-indicator-ip gir1.2-appindicator3-0.1
 
 
 # GRUB vanilla defaults
@@ -343,6 +347,9 @@ cat <<EOF >>/etc/hosts
 
 EOF
 
+
+# Re-enable password for sudo
+perl -p -i -e '$_=undef if(/^'$USERNAME' ALL=\(ALL\)\sNOPASSWD:/)' /etc/sudoers
 
 
 # Setup Git repo with class materials
