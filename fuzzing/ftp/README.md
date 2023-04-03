@@ -208,7 +208,10 @@ To print the PCAP on the console:
 $ tshark -r  ftp.pcap -V
 ```
 
-To configure the fuzzer (it will create the file `ftp-0.fuzzer`):
+Configure the fuzzer with the PCAP file, by running `mutiny_prep.py` as follows.
+When it asks for `combine payloads into single messages`, you can reply `n`.
+You can select the default for the other questions.
+The script will create the file `ftp-0.fuzzer`.
 ```
 $ cd mutiny-fuzzer
 
