@@ -1,13 +1,13 @@
-# Installing the vulnerable FTP server
+# Building and running the vulnerable FTP server
 
-Patch and build the (vulnerable) FTP server:
+Patch and build the FTP server:
 
 ```
 $ tar zxf hpaftpd.tgz
 
-$ cd hpaftpd-1.05
+$ patch -p1 -d hpaftpd-1.05/ < hpaftpd-debug.patch
 
-$ patch -p1 < hpaftpd-debug.patch
+$ cd hpaftpd-1.05
 
 $ make CFLAGS="-g"
 
@@ -15,12 +15,13 @@ $ cd ..
 ```
 
 
+
 To test that the FTP server actually works, run this command:
 ```
 $ ./hpaftpd-1.05/hpaftpd -p2121  -l -unobody
 ```
 
-**Note**: To make it easier to run and fuzz the server, we are not running the FTP with chroot jailing and de-privileging.
+**Note**: To make it easier to run and fuzz the server, we are running the FTP server without chroot jailing and without de-privileging.
 
 
 On another shell, try to connect to the FTP server:
@@ -52,21 +53,29 @@ ftp> quit
 
 
 
+To make the FTP server vulnerable, patch the source code to inject a vulnerability:
+```
+$ patch -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
+```
+
+Then, build and run the FTP server again. The server will crash if the command string is too long.
+
+To remove the vulnerability, you can reverse the patch with:
+```
+$ patch -R -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
+```
+
 
 
 # metasploit (generation fuzzing)
 
-To install metasploit on Ubuntu 20.04:
+To install metasploit on Ubuntu 22.04:
 
 ```
-$ sudo apt install gem
+$ sudo apt install gem ruby-rubygems
 $ sudo gem update
 
-$ sudo apt install ruby-dev
-$ sudo apt install ruby-pg
-$ sudo apt install libpq-dev
-$ sudo apt install libpcap-dev
-$ sudo apt-get install libsqlite3-dev
+$ sudo apt install ruby-dev ruby-pg libpq-dev libpcap-dev libsqlite3-dev
 
 $ git clone https://github.com/rapid7/metasploit-framework.git
 
@@ -76,7 +85,7 @@ $ bundle install
 ```
 
 
-Then, run metasplot with:
+Then, run metasploit with:
 ```
 $ ./msfconsole
 
@@ -93,10 +102,20 @@ Matching Modules
    18  auxiliary/fuzzers/ftp/ftp_pre_post                               normal  No     Simple FTP Fuzzer
    ...
 
-msf6 > use auxiliary/fuzzers/ftp/ftp_pre_post 
+msf6 > use auxiliary/fuzzers/ftp/ftp_pre_post
+
+msf6 > info
+
+       Name: Simple FTP Fuzzer
+     Module: auxiliary/fuzzers/ftp/ftp_pre_post
+     ...
 
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RHOSTS 127.0.0.1
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RPORT  2121
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STARTSIZE 0
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set ENDSIZE 3000
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STEPSIZE 3000
+
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
 
 ```
@@ -105,12 +124,27 @@ msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
 
 # boofuzz (generation fuzzing)
 
-Clone, patch, and install boofuzz from GitHub:
+The version of boofuzz in this repo works with Python3 up to version 3.9.
+If you have a more recent version, you can use `pyenv` to run version 3.9.
+To install `pyenv`, see the instructions at the end of this guide.
+To install and to switch to Python 3.9.16 (only in the current working directory):
+
+```
+$ pyenv install 3.9.16
+
+$ pyenv local 3.9.16
+```
+
+Clone the submodule with boofuzz:
 
 ```
 $ git submodule update --init --recursive
+```
 
-$ patch -d boofuzz -p1 < boofuzz-isalive.patch
+Patch and install boofuzz:
+
+```
+$ patch -d boofuzz/ -p1 < boofuzz-isalive.patch
 
 $ cd boofuzz
 $ pip3 install .
@@ -140,28 +174,20 @@ On another shell, launch the fuzzer with:
 $ python3 ftp_hpa.py
 ```
 
-You can check the progress through the shell and the browser at http://localhost:26000
+You can check the progress through the shell, and through the browser at http://localhost:26000
 
 
 # mutiny (mutation fuzzing)
 
-Note: this tool still runs on Python 2.
-To install Python 2 on Ubuntu 20.04:
+Clone mutiny from:
 
-```
-$ sudo apt install python2
-
-$ curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-
-$ sudo python2 get-pip.py
-
-$ pip2 install scapy
-```
-
-First, build the radamsa tool (used by mutiny):
 ```
 $ git clone https://github.com/Cisco-Talos/mutiny-fuzzer
+```
 
+Mutiny is built on top of `radamsa`, a command-line fuzzing tool.
+To build radamsa:
+```
 $ cd mutiny-fuzzer
 
 $ tar zxf radamsa-v0.6.tar.gz
@@ -176,10 +202,56 @@ To perform fuzzing through mutation, you need to collect a sample of FTP traffic
 $ sudo tcpdump -i lo  -w ftp.pcap "port 2121"
 ```
 
-To run the fuzzer:
+You can find in this repo a sample PCAP file.
+To print the PCAP on the console:
 ```
-$ python2 mutiny_prep.py -a ftp.pcap
-
-$ python2 mutiny.py ftp-0.fuzzer 127.0.0.1
+$ tshark -r  ftp.pcap -V
 ```
 
+To configure the fuzzer (it will create the file `ftp-0.fuzzer`):
+```
+$ cd mutiny-fuzzer
+
+$ python mutiny_prep.py -a ../ftp.pcap
+```
+
+Start the FTP server in another shell.
+Then, run the fuzzer:
+```
+$ python mutiny.py ftp-0.fuzzer 127.0.0.1
+```
+
+
+# Pyenv
+
+To install Pyenv:
+```
+curl https://pyenv.run | bash
+```
+
+Put the following in `~/.bash_profile`:
+```
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+```
+
+Put the following in `~/.bashrc`:
+```
+eval "$(pyenv virtualenv-init -)"
+```
+
+Log-out and then log-in again. Check that Pyenv works with:
+```
+pyenv install --list
+```
+
+You can install an additional Python version with:
+```
+pyenv install 2.7.18
+```
+
+To switch to a specific version (only in the current working dir):
+```
+pyenv local 2.7.18
+```

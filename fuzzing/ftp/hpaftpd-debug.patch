@@ -1,6 +1,6 @@
 diff -uNr a/hpaftpd.c b/hpaftpd.c
---- a/hpaftpd.c	2007-07-01 11:47:45.000000000 +0200
-+++ b/hpaftpd.c	2021-04-19 17:43:25.869005227 +0200
+--- a/hpaftpd.c	2007-07-01 09:47:45.000000000 +0000
++++ b/hpaftpd.c	2023-04-03 17:50:21.165917939 +0000
 @@ -88,8 +88,8 @@
  #define CMD_BAD_OPTIONS		1
  #define CMD_VERSION		2
@@ -28,3 +28,15 @@ diff -uNr a/hpaftpd.c b/hpaftpd.c
  
      main_loop();
  
+diff -uNr a/nb.h b/nb.h
+--- a/nb.h	2007-06-18 21:02:03.000000000 +0000
++++ b/nb.h	2023-04-03 17:50:41.581918248 +0000
+@@ -70,7 +70,7 @@
+ extern NB_SERVER *nbs;
+ extern NB_CONN *nbc;
+ 
+-enum {
++typedef enum {
+     NB_OK,		/* 0 - No errors */
+     NB_ERROR,		/* 1 - Some error */
+     NB_MEMORY,		/* 2 - Memory allocation error */
