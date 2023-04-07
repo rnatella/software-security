@@ -179,6 +179,11 @@ You can check the progress through the shell, and through the browser at http://
 
 # mutiny (mutation fuzzing)
 
+Install `scapy`:
+```
+$ pip3 install scapy
+```
+
 Clone mutiny from:
 
 ```
@@ -258,3 +263,9 @@ To switch to a specific version (only in the current working dir):
 ```
 pyenv local 2.7.18
 ```
+
+On Ubuntu 22.04, you may need to install extern dependencies for Python, such as:
+```
+$ sudo apt install libssl-dev libsqlite3-dev
+```
+
