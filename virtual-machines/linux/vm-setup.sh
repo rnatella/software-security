@@ -132,9 +132,11 @@ apt install -y python3-requests python3-bs4 python3-scapy
 
 # Install AFL++ for fuzzing labs
 apt install -y afl++
+apt install -y libstdc++-12-dev
 
 
 # Install Pwndbg for buffer overflow labs
+# (uses "sudo", we previously disabled the password prompt)
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
 
 
@@ -153,7 +155,8 @@ cat <<EOF >/home/$USERNAME/.config/Code/User/settings.json
     },
     "extensions.ignoreRecommendations": true,
     "extensions.autoCheckUpdates": false,
-    "extensions.autoUpdate": false
+    "extensions.autoUpdate": false,
+    "update.mode": "none"
 }
 EOF
 
@@ -221,6 +224,26 @@ rm -f gcm-linux_amd64.*.deb
 
 su - $USERNAME -c 'git-credential-manager-core configure'
 su - $USERNAME -c 'git config --global credential.credentialStore secretservice'
+
+
+
+# Install Firefox from PPA maintained by Mozilla, replace the snap version to prevent auto-updates
+# https://askubuntu.com/questions/1399383/how-to-install-firefox-as-a-traditional-deb-package-without-snap-in-ubuntu-22/1404401#1404401
+add-apt-repository -y ppa:mozillateam/ppa
+cat <<EOF >/etc/apt/preferences.d/mozilla-firefox
+Package: *
+Pin: release o=LP-PPA-mozillateam
+Pin-Priority: 1001
+
+Package: firefox
+Pin: version 1:1snap1-0ubuntu2
+Pin-Priority: -1
+EOF
+
+snap remove firefox
+apt update
+apt install -y firefox firefox-locale-it  --allow-downgrades
+
 
 
 
@@ -315,7 +338,7 @@ netplan apply
 
 
 # Widget for showing IP address
-add-apt-repository ppa:nico-marcq/indicator-ip
+add-apt-repository -y ppa:nico-marcq/indicator-ip
 apt-get update
 apt-get install -y python3-indicator-ip gir1.2-appindicator3-0.1
 
@@ -345,6 +368,16 @@ cat <<EOF >>/etc/hosts
 10.9.0.5        www.example60.com
 10.9.0.5        www.example70.com
 
+EOF
+
+
+# Disable automatic updates for Ubuntu (to prevent that they break the labs)
+# https://askubuntu.com/questions/1322292/how-do-i-turn-off-automatic-updates-completely-and-for-real
+cat <<EOF >/etc/apt/apt.conf.d/20auto-upgrades
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "0";
+APT::Periodic::Unattended-Upgrade "0";
 EOF
 
 
