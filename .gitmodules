@@ -10,6 +10,3 @@
 [submodule "fuzzing/go-fuzz-corpus"]
 	path = fuzzing/go-fuzz-corpus
 	url = https://github.com/dvyukov/go-fuzz-corpus
-[submodule "static-analysis/webgoat"]
-	path = static-analysis/webgoat
-	url = https://github.com/rnatella/WebGoat
