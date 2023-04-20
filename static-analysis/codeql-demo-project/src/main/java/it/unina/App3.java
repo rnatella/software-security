@@ -2,11 +2,8 @@ package it.unina;
 
 import java.util.regex.Pattern;
 
-/**
- * Hello world!
- */
-public final class App2 {
-    private App2() {
+public final class App3 {
+    private App3() {
     }
 
     public static void main(String[] args) {
@@ -22,9 +19,13 @@ public final class App2 {
 
         String r = s + " test";
 
+        c.setVal(r);
+
+        String t = c.getVal();
 
 
-        boolean match = Pattern.matches("^[a-zA-Z]$", r);
+
+        boolean match = Pattern.matches("^[a-zA-Z]$", t);
 
         if(match == false) {
 
@@ -33,8 +34,7 @@ public final class App2 {
         }
 
 
-        b.mySink(r);
+        b.mySink(t);
 
     }
-
 }

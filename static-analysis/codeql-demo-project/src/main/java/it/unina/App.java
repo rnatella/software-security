@@ -10,17 +10,15 @@ public final class App {
     }
 
     public static void main(String[] args) {
-        
+
         MyClassA a = new MyClassA();
 
         MyClassB b = new MyClassB();
 
-        MyClassC c = new MyClassC();
-
 
         String s = a.mySource();
 
-        String r = s + " test";
+        String r = s;
 
 
 
