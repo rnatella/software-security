@@ -1,11 +1,8 @@
 import java
 import semmle.code.java.dataflow.DataFlow::DataFlow
 
-from Parameter tainted, VarAccess callFooArg, 
-     MethodAccess callFoo
-where tainted.getCallable().getName() = "func" and
-      callFoo.getMethod().getName() = "callFoo" and
-      callFoo.getArgument(0) = callFooArg and
-      localFlow( parameterNode(tainted),
-                 exprNode(callFooArg) )
-select tainted, "Data-flow to callFoo()"
+from MethodAccess a, MethodAccess b
+where a.getCallee().getName() = "mySource" and
+      b.getCallee().getName() = "mySink" and
+      localFlow(exprNode(a), exprNode(b.getAnArgument()))
+select b, "data flow found"

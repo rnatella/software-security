@@ -1,13 +1,11 @@
 import java
 import semmle.code.java.dataflow.DataFlow::DataFlow
 
-
-from MethodAccess secret, MethodAccess print
-where secret.getMethod().getName() = "getSecret" and
-      secret.getMethod().getDeclaringType().hasQualifiedName("it.unina", "DataFlow2") and
-      print.getMethod().getName() = "println" and
-      print.getMethod().getDeclaringType().hasQualifiedName("java.io","PrintStream") and
-      localFlow( exprNode(secret),
-                 exprNode(print.getArgument(0).getAChildExpr())
-               )
-select print, "Leaked secret"
+from Parameter tainted, VarAccess callFooArg, 
+     MethodAccess callFoo
+where tainted.getCallable().getName() = "func" and
+      callFoo.getMethod().getName() = "callFoo" and
+      callFoo.getArgument(0) = callFooArg and
+      localFlow( parameterNode(tainted),
+                 exprNode(callFooArg) )
+select tainted, "Data-flow to callFoo()"
