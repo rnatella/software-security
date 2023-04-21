@@ -10,3 +10,9 @@
 [submodule "fuzzing/go-fuzz-corpus"]
 	path = fuzzing/go-fuzz-corpus
 	url = https://github.com/dvyukov/go-fuzz-corpus
+[submodule "virtual-machines/windows/Virtual-Desktop-Optimization-Tool"]
+	path = virtual-machines/windows/Virtual-Desktop-Optimization-Tool
+	url = https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
+[submodule "virtual-machines/windows/Windows-10-optimize-script"]
+	path = virtual-machines/windows/Windows-10-optimize-script
+	url = https://github.com/Fahim732/Windows-10-optimize-script
