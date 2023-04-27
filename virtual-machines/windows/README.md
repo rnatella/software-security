@@ -1,6 +1,6 @@
 ### Create VM with Vagrant ###
-(https://github.com/Baune8D/packer-windows-desktop)
-(https://app.vagrantup.com/baunegaard/boxes/win10pro-en)
+https://github.com/Baune8D/packer-windows-desktop
+https://app.vagrantup.com/baunegaard/boxes/win10pro-en
 
 For using VirtualBox:
 ```
@@ -33,7 +33,8 @@ VAGRANT_VAGRANTFILE=Vagrantfile.vmware vagrant up --provider vmware_desktop
 
 ### Optimize system, remove bloat ###
 
-(https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/tree/357ec70f454c53f1adb2e13331d39f2e5e02da54)
+https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/tree/357ec70f454c53f1adb2e13331d39f2e5e02da54
+
 From PowerShell Core:
 ```
 cd Virtual-Desktop-Optimization-Tool
@@ -51,7 +52,7 @@ The second script reboots the machine.
 
 ### Create user (unina/unina), with automated logon ###
 
-(https://gist.github.com/ducas/3a65704a3b92dfa0301e)
+https://gist.github.com/ducas/3a65704a3b92dfa0301e
 
 ```
 & NET USER "unina" "unina" /add /y /expires:never
@@ -66,7 +67,7 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v "Default
 
 
 ### Windows Defender ###
-(https://www.tenforums.com/tutorials/3569-turn-off-real-time-protection-microsoft-defender-antivirus.html)
+https://www.tenforums.com/tutorials/3569-turn-off-real-time-protection-microsoft-defender-antivirus.html
 
 ```
 Set-MpPreference -DisableRealtimeMonitoring 1
@@ -85,7 +86,7 @@ Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
 
 ### Install WinGet (from Microsoft Store) ###
-(https://www.microsoft.com/p/app-installer/9nblggh4nns1)
+https://www.microsoft.com/p/app-installer/9nblggh4nns1
 
 
 ### Install new PowerShell ###
@@ -107,8 +108,8 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 ```
 
 
-### Install Windows Terminal (from Microsoft Store) ###
-(https://aka.ms/terminal)
+### Install Windows Terminal ###
+https://aka.ms/terminal
 
 Install from Microsoft Store.
 
@@ -203,7 +204,7 @@ Remove-Item (Get-PSReadlineOption).HistorySavePath
 
 
 ### Misc options ###
-(https://github.com/Baune8D/vagrant-vs-devbox/)
+https://github.com/Baune8D/vagrant-vs-devbox/
 
 ```
 Write-Host "Disabling hibernation"
