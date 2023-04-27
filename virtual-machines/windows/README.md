@@ -247,10 +247,12 @@ For VirtualBox:
 ```
 export VM_UUID=`cat .vagrant/machines/default/virtualbox/id`
 
-VBoxManage export ${VM_UUID} -o Malware-VM.ova
+VBoxManage export ${VM_UUID} -o Malware-VM-VirtualBox.ova
 ```
 
 For VMware Fusion (Mac):
 ```
-/Applications/VMware\ Fusion.app/Contents/Library/VMware\ OVF\ Tool/ovftool --acceptAllEulas <VM PATH>/<VM NAME>.vmwarevm/<VM NAME>.vmx  <DESTINATION PATH>
+export VMX_PATH=`cat .vagrant/machines/default/vmware_desktop/id`
+/Applications/VMware\ Fusion.app/Contents/Library/VMware\ OVF\ Tool/ovftool --acceptAllEulas  ${VMX_PATH} Malware-VM-VMware.ova
 ```
+
