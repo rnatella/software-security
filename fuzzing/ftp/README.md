@@ -220,13 +220,13 @@ The script will create the file `ftp-0.fuzzer`.
 ```
 $ cd mutiny-fuzzer
 
-$ python mutiny_prep.py -a ../ftp.pcap
+$ python3 mutiny_prep.py -a ../ftp.pcap
 ```
 
 Start the FTP server in another shell.
 Then, run the fuzzer:
 ```
-$ python mutiny.py ftp-0.fuzzer 127.0.0.1
+$ python3 mutiny.py ftp-0.fuzzer 127.0.0.1
 ```
 
 
@@ -266,6 +266,6 @@ pyenv local 2.7.18
 
 On Ubuntu 22.04, you may need to install extern dependencies for Python, such as:
 ```
-$ sudo apt install libssl-dev libsqlite3-dev
+$ sudo apt-get install build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
 ```
 
