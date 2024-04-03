@@ -1,0 +1,9 @@
+CC=clang
+CFLAGS=-O0 -g -fsanitize=address
+
+titanic: titanic.c
+	$(CC) $(CFLAGS) titanic.c -o titanic
+
+.PHONY: clean
+clean:
+	rm -f titanic
