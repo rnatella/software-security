@@ -205,6 +205,10 @@ su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql
 # git submodule update --remote
 
 
+# Java dependencies for CodeQL demo
+apt install -y maven
+
+
 pip3 install semgrep
 
 
