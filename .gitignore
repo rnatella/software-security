@@ -1,3 +1,11 @@
 .DS_Store
 .vagrant
 *.ova
+coredumps
+boofuzz-crash-bin-*
+boofuzz-results
+.gdb_history
+.python-version
+mysql_data
+ftp-*.fuzzer
+ftp-*_logs

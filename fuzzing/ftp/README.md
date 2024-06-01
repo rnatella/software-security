@@ -53,14 +53,14 @@ ftp> quit
 
 
 
-To make the FTP server vulnerable, patch the source code to inject a vulnerability:
+To **make the FTP server vulnerable**, patch the source code to inject a vulnerability:
 ```
 $ patch -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
 ```
 
 Then, build and run the FTP server again. The server will crash if the command string is too long.
 
-To remove the vulnerability, you can reverse the patch with:
+To **remove the vulnerability**, you can reverse the patch with:
 ```
 $ patch -R -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
 ```
@@ -112,9 +112,9 @@ msf6 > info
 
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RHOSTS 127.0.0.1
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set RPORT  2121
-msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STARTSIZE 0
-msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set ENDSIZE 3000
-msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STEPSIZE 3000
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STARTSIZE 1
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set ENDSIZE 100
+msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > set STEPSIZE 1000
 
 msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
 
@@ -156,8 +156,11 @@ On crashes of the FTP server, it will store the core dump, and restart the FTP s
 
 ```
 $ ulimit -c unlimited
-$ mkdir coredumps
-$ python3 boofuzz/process_monitor_unix.py -d coredumps
+$ sudo bash -c 'echo core > /proc/sys/kernel/core_pattern'
+$ sudo bash -c 'echo 0 > /proc/sys/kernel/core_uses_pid'
+$ sudo systemctl disable apport.service
+
+$ python3 boofuzz/process_monitor_unix.py
 
 [04:11.23] Process Monitor PED-RPC server initialized:
 [04:11.23] 	 listening on:  0.0.0.0:26002

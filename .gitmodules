@@ -16,3 +16,6 @@
 [submodule "virtual-machines/windows/Windows-10-optimize-script"]
 	path = virtual-machines/windows/Windows-10-optimize-script
 	url = https://github.com/Fahim732/Windows-10-optimize-script
+[submodule "fuzzing/ftp/mutiny-fuzzer"]
+	path = fuzzing/ftp/mutiny-fuzzer
+	url = https://github.com/Cisco-Talos/mutiny-fuzzer
