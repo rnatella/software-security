@@ -7,8 +7,6 @@
 
 import java
 
-from IfStmt ifstmt, BlockStmt block
-where
-  block = ifstmt.getThen() and
-  block.getNumStmt() = 0
+from IfStmt ifstmt
+where ifstmt.getThen().getNumStmt() = 0
 select ifstmt, "This if-statement is redundant."

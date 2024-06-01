@@ -1,9 +1,8 @@
 import java
 
-from TryStmt trystmt, CatchClause catch
-where catch = trystmt.getACatchClause() and
-      catch.getVariable().getType().getName() = "AnException"
-      select catch,"Catch block found!"
+from TryStmt trystmt
+where trystmt.getACatchClause().getVariable().getType().getName() = "AnException"
+select trystmt,"Try-catch block found!"
 
 // Alternative "where" condition:
-//      catch.getACaughtType().getName() = "AnException"
+//   trystmt.getACatchClause().getACaughtType().getName() = "AnException"

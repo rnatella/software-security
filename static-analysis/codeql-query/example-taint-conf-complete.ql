@@ -20,7 +20,7 @@ class MyTaintConfig extends TaintTracking::Configuration {
 	exists(MethodAccess mb, Expr arg |
 		mb.getCallee().getName() = "mySink" and
 		mb.getCallee().getDeclaringType().getName() = "MyClassB" and
-      		mb.getAnArgument() = arg and
+		mb.getAnArgument() = arg and
 		sink.asExpr() = arg
 	)
   }
@@ -30,7 +30,7 @@ class MyTaintConfig extends TaintTracking::Configuration {
 	exists(MethodAccess mb, Expr arg |
 		mb.getCallee().getName() = "matches" and
 		mb.getCallee().getDeclaringType().hasQualifiedName("java.util.regex", "Pattern") and
-        mb.getAnArgument() = arg and
+		mb.getAnArgument() = arg and
 		node.asExpr() = arg
 	)
   }

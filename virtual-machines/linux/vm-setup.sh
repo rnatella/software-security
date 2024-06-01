@@ -54,6 +54,8 @@ apt-get install -y open-vm-tools open-vm-tools-desktop
 apt-get install -y gcc-multilib g++-multilib \
                    git \
                    gdb \
+                   autoconf \
+                   libtool \
                    valgrind \
                    vim \
                    man-db \
@@ -135,6 +137,27 @@ apt install -y afl++
 apt install -y libstdc++-12-dev
 
 
+# Install pyenv (dependency for basic fuzzing examples)
+
+apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
+
+curl https://pyenv.run | bash
+
+cat <<EOF >/home/$USERNAME/.bash_profile
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+EOF
+
+cat <<EOF >/home/$USERNAME/.bashrc
+eval "$(pyenv virtualenv-init -)"
+EOF
+
+su - $USERNAME -c 'source ~/.bashrc && pyenv install 3.9.16'
+
+
+
+
 # Install Pwndbg for buffer overflow labs
 # (uses "sudo", we previously disabled the password prompt)
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
@@ -180,6 +203,10 @@ su - $USERNAME -c "jq '.\"codeQL.cli.executablePath\" = \"/opt/codeql/codeql\"' 
 su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql-starter.git"
 # to update:
 # git submodule update --remote
+
+
+# Java dependencies for CodeQL demo
+apt install -y maven
 
 
 pip3 install semgrep
