@@ -34,7 +34,7 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
 <body>
   <nav class="navbar fixed-top navbar-expand-lg navbar-light" style="background-color: #3EA055;">
     <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-      <a class="navbar-brand" href="safe_home.php" ><img src="seed_logo.png" style="height: 40px; width: 200px;" alt="SEEDLabs"></a>
+      <a class="navbar-brand" href="unsafe_home.php" ><img src="seed_logo.png" style="height: 40px; width: 200px;" alt="SEEDLabs"></a>
 
       <?php
       session_start();
@@ -55,7 +55,6 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
         $dbuser="seed";
         $dbpass="dees";
         $dbname="sqllab_users";
-
         // Create a DB connection
         $conn = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
         if ($conn->connect_error) {
@@ -71,15 +70,36 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
       // create a connection
       $conn = getDB();
       // Sql query to authenticate the user
-      $sql = $conn->prepare("SELECT id, name, eid, salary, birth, ssn, phoneNumber, address, email,nickname,Password
+      $sql = "SELECT id, name, eid, salary, birth, ssn, phoneNumber, address, email,nickname,Password
       FROM credential
-      WHERE name= ? and Password= ?");
-      $sql->bind_param("ss", $input_uname, $hashed_pwd);
-      $sql->execute();
-      $sql->bind_result($id, $name, $eid, $salary, $birth, $ssn, $phoneNumber, $address, $email, $nickname, $pwd);
-      $sql->fetch();
-      $sql->close();
-      
+      WHERE name= '$input_uname' and Password='$hashed_pwd'";
+      if (!$result = $conn->query($sql)) {
+        echo "</div>";
+        echo "</nav>";
+        echo "<div class='container text-center'>";
+        die('There was an error running the query [' . $conn->error . ']\n');
+        echo "</div>";
+      }
+      /* convert the select return result into array type */
+      $return_arr = array();
+      while($row = $result->fetch_assoc()){
+        array_push($return_arr,$row);
+      }
+
+      /* convert the array type to json format and read out*/
+      $json_str = json_encode($return_arr);
+      $json_a = json_decode($json_str,true);
+      $id = $json_a[0]['id'];
+      $name = $json_a[0]['name'];
+      $eid = $json_a[0]['eid'];
+      $salary = $json_a[0]['salary'];
+      $birth = $json_a[0]['birth'];
+      $ssn = $json_a[0]['ssn'];
+      $phoneNumber = $json_a[0]['phoneNumber'];
+      $address = $json_a[0]['address'];
+      $email = $json_a[0]['email'];
+      $pwd = $json_a[0]['Password'];
+      $nickname = $json_a[0]['nickname'];
       if($id!=""){
         // If id exists that means user exists and is successfully authenticated
         drawLayout($id,$name,$eid,$salary,$birth,$ssn,$pwd,$nickname,$email,$address,$phoneNumber);
@@ -96,7 +116,6 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
         echo "</div>";
         return;
       }
-
       // close the sql connection
       $conn->close();
 
@@ -114,7 +133,7 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
           // If the user is a normal user.
           echo "<ul class='navbar-nav mr-auto mt-2 mt-lg-0' style='padding-left: 30px;'>";
           echo "<li class='nav-item active'>";
-          echo "<a class='nav-link' href='safe_home.php'>Home <span class='sr-only'>(current)</span></a>";
+          echo "<a class='nav-link' href='unsafe_home.php'>Home <span class='sr-only'>(current)</span></a>";
           echo "</li>";
           echo "<li class='nav-item'>";
           echo "<a class='nav-link' href='unsafe_edit_frontend.php'>Edit Profile</a>";
@@ -185,7 +204,7 @@ all. Therefore the navbar tag starts before the php tag but it end within the ph
           $max = sizeof($json_aa);
           echo "<ul class='navbar-nav mr-auto mt-2 mt-lg-0' style='padding-left: 30px;'>";
           echo "<li class='nav-item active'>";
-          echo "<a class='nav-link' href='safe_home.php'>Home <span class='sr-only'>(current)</span></a>";
+          echo "<a class='nav-link' href='unsafe_home.php'>Home <span class='sr-only'>(current)</span></a>";
           echo "</li>";
           echo "<li class='nav-item'>";
           echo "<a class='nav-link' href='unsafe_edit_frontend.php'>Edit Profile</a>";
