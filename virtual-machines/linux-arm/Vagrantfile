@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VM_BOX  = 'bento/ubuntu-22.04-arm64'
+VM_NAME = 'Linux-ARM-Software-Security'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = VM_BOX
+  config.vm.hostname = VM_NAME
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  config.vagrant.plugins = "vagrant-vmware-desktop"
+
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+    v.cpus = 2
+    v.memory = "4096"
+    v.linked_clone = false
+    v.ssh_info_public = true
+    v.vmx["ethernet0.virtualdev"] = "vmxnet3"
+  end
+
+  config.vm.provision "file", source: "./ova-cleanup.sh", destination: "/home/vagrant/ova-cleanup.sh"
+
+  config.vm.provision "shell", path: "./vm-setup.sh"
+
+end
+

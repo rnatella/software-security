@@ -35,11 +35,9 @@ apt-get install -y language-pack-it language-pack-gnome-it language-pack-it-base
 update-locale LANG=it_IT.UTF-8 LANGUAGE= LC_MESSAGES= LC_COLLATE= LC_CTYPE=
 
 
-# Install guest OS tools for VirtualBox and VMware
+# Install guest OS tools
 apt-get install -y build-essential
 apt-get install -y linux-headers-$(uname -r)
-apt-get install -y virtualbox-guest-utils virtualbox-guest-x11
-#apt-get install -y virtualbox-dkms virtualbox-guest-additions-iso
 apt-get install -y open-vm-tools open-vm-tools-desktop
 
 
@@ -51,8 +49,7 @@ apt-get install -y open-vm-tools open-vm-tools-desktop
 
 
 # Install basic tools for C/C++ development
-apt-get install -y gcc-multilib g++-multilib \
-                   git \
+apt-get install -y git \
                    gdb \
                    autoconf \
                    libtool \
@@ -74,6 +71,7 @@ apt-get install -y fonts-ubuntu \
                    wget \
                    tree \
                    dos2unix \
+                   expect \
                    net-tools \
                    network-manager \
                    network-manager-gnome \
@@ -122,8 +120,8 @@ systemctl disable apache2
 systemctl stop apache2
 
 snap install ngrok
-snap install zaproxy --classic
-snap install hetty
+#snap install zaproxy --classic
+#snap install hetty
 snap install metasploit-framework
 
 pip3 install pwntools
@@ -162,9 +160,26 @@ su - $USERNAME -c 'source ~/.bashrc && pyenv install 3.9.16'
 # (uses "sudo", we previously disabled the password prompt)
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
 
+# Install Qemu-user for cross-platform execution of x86_64 on ARM
+
+apt install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu
+apt install -y gcc-multilib-x86-64-linux-gnu gcc-multilib-x86-64-linux-gnux32
+apt install -y qemu-user qemu-user-static binfmt-support
+apt install -y gdb-multiarch
+
+ln -s /usr/x86_64-linux-gnu/lib64 /lib64
+ln -s /usr/x86_64-linux-gnux32/lib/ld-linux.so.2 /lib/ld-linux.so.2
+
+su - $USERNAME -c "echo 'export LD_LIBRARY_PATH=/usr/x86_64-linux-gnu/lib:/usr/x86_64-linux-gnux32/lib32/' >> /home/$USERNAME/.bash_profile"
+
+su - $USERNAME -c "git clone https://github.com/rnatella/gdbinit-qemu-arm && cp gdbinit-qemu-arm/.gdbinit-qemu /home/$USERNAME/ && rm -rf gdbinit-qemu-arm && echo 'source /home/$USERNAME/.gdbinit-qemu' >> /home/$USERNAME/.gdbinit"
+
 
 # Install Visual Studio Code and its C/C++ extension
-snap install --classic code
+#snap install --classic code
+curl -L https://aka.ms/linux-arm64-deb > code_arm64.deb
+apt -y install ./code_arm64.deb
+
 su - $USERNAME -c 'code --install-extension ms-vscode.cpptools'
 
 # Default settings for Visual Studio Code (hide ".vscode" folder, disable workspace trust)
@@ -185,28 +200,29 @@ EOF
 
 
 
+# Note: CodeQL is not yet supported for Linux/ARM (https://github.com/github/codeql-cli-binaries/issues/97)
+
 # Install CodeQL CLI
-wget `curl -s https://api.github.com/repos/github/codeql-cli-binaries/releases/latest | jq '.assets[] | select(.name|match("codeql-linux64.zip$")) | .browser_download_url' | tr -d \"`
-unzip codeql-linux64.zip
-mv codeql /opt/
+#wget `curl -s https://api.github.com/repos/github/codeql-cli-binaries/releases/latest | jq '.assets[] | select(.name|match("codeql-linux64.zip$")) | .browser_download_url' | tr -d \"`
+#unzip codeql-linux64.zip
+#mv codeql /opt/
 
 
 # Install VSCode extension for CodeQL
 
-su - $USERNAME -c 'code --install-extension GitHub.vscode-codeql'
+#su - $USERNAME -c 'code --install-extension GitHub.vscode-codeql'
 
-apt install -y moreutils	# sponge
-su - $USERNAME -c "jq '.\"codeQL.cli.executablePath\" = \"/opt/codeql/codeql\"' /home/$USERNAME/.config/Code/User/settings.json | sponge /home/$USERNAME/.config/Code/User/settings.json"
+#apt install -y moreutils	# sponge
+#su - $USERNAME -c "jq '.\"codeQL.cli.executablePath\" = \"/opt/codeql/codeql\"' /home/$USERNAME/.config/Code/User/settings.json | sponge /home/$USERNAME/.config/Code/User/settings.json"
 
 
 # Install VSCode environment for CodeQL
-su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql-starter.git"
-# to update:
-# git submodule update --remote
+#su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql-starter.git"
+# to update: git submodule update --remote
 
 
 # Java dependencies for CodeQL demo
-apt install -y maven
+#apt install -y maven
 
 
 pip3 install semgrep
@@ -226,12 +242,12 @@ usermod -a -G docker $USERNAME
 
 
 # Install PowerShell
-apt-get install -y wget apt-transport-https software-properties-common
-wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
-dpkg -i packages-microsoft-prod.deb
-rm -f packages-microsoft-prod.deb
-apt-get update
-apt-get install -y powershell
+#apt-get install -y wget apt-transport-https software-properties-common
+#wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+#dpkg -i packages-microsoft-prod.deb
+#rm -f packages-microsoft-prod.deb
+#apt-get update
+#apt-get install -y powershell
 
 
 
@@ -242,9 +258,21 @@ apt-get install -y linux-tools-$(uname -r)
 
 # Install password manager for GIT
 apt-get install -y libsecret-tools libsecret-common libsecret-1-0 libsecret-1-dev
-wget `curl -s https://api.github.com/repos/GitCredentialManager/git-credential-manager/releases/latest| jq '.assets[] | select(.name|match("gcm-linux_amd64.*deb$")) | .browser_download_url' | tr -d \"`
-dpkg -i gcm-linux_amd64.*.deb
-rm -f gcm-linux_amd64.*.deb
+
+# fixes: https://stackoverflow.com/questions/73312785/dotnet-sdk-is-installed-but-not-recognized-linux-ubuntu-popos-22-04
+apt -y remove 'dotnet*'
+apt -y remove 'aspnetcore*'
+rm /etc/apt/sources.list.d/microsoft-prod.list
+apt update
+
+#curl -L https://aka.ms/gcm/linux-install-source.sh -O
+#bash linux-install-source.sh -y
+#rm -f linux-install-source.sh
+
+curl -L https://github.com/trueToastedCode/git-credential-manager/releases/download/2.4.1/gcm-linux_arm64.2.4.1.deb -O
+apt -y install ./gcm-linux_arm64.2.4.1.deb
+rm ./gcm-linux_arm64.2.4.1.deb
+
 
 su - $USERNAME -c 'git-credential-manager-core configure'
 su - $USERNAME -c 'git config --global credential.credentialStore secretservice'
@@ -292,7 +320,7 @@ apt-get install -y dbus-x11
 
 
 # Modify "favorite apps" on the dock bar (on the left)
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell favorite-apps \"['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'code_code.desktop', 'firefox_firefox.desktop']\""
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell favorite-apps \"['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'code.desktop', 'firefox_firefox.desktop']\""
 
 
 
@@ -307,13 +335,13 @@ su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.input-sources sou
 
 
 # Set dark theme
-apt-get install -y yaru-theme-gtk yaru-theme-gnome-shell
+#apt-get install -y yaru-theme-gtk yaru-theme-gnome-shell
 
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell.ubuntu color-scheme prefer-dark"
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface gtk-theme Yaru-dark"
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
+#su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell.ubuntu color-scheme prefer-dark"
+#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface gtk-theme Yaru-dark"
+#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
 
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark 'file:///usr/share/backgrounds/jj_dark_by_Hiking93.jpg'"
+#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark 'file:///usr/share/backgrounds/jj_dark_by_Hiking93.jpg'"
 
 
 
@@ -359,6 +387,11 @@ echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 
 netplan generate
 netplan apply
+
+# Avoid 120s timeout on boot
+# https://askubuntu.com/questions/972215/a-start-job-is-running-for-wait-for-network-to-be-configured-ubuntu-server-17-1
+systemctl disable systemd-networkd-wait-online.service
+systemctl mask systemd-networkd-wait-online.service
 
 
 # Widget for showing IP address
