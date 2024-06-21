@@ -1,13 +1,38 @@
-1) Installare VirtualBox
-
-2) Installare Vagrant (es. tramite [Brew](https://brew.sh))
-
-3) Utilizzare questi comandi:
+# Install VMware Fusion
 
 ```
-$ vagrant plugin install vagrant-vbguest
-$ vagrant plugin install vagrant-docker-compose
-$ vagrant box update        # per aggiornare l'immagine di partenza del SO
-$ vagrant up
-$ ./ova-export.sh
+brew install --cask vmware-fusion
+```
+
+
+# Install Vagrant VMware Utility
+
+```
+brew install --cask vagrant-vmware-utility
+```
+
+Or download from https://developer.hashicorp.com/vagrant/install/vmware (macOS AMD64)
+
+
+# Install Vagrant VMware provider plugin
+
+```
+vagrant plugin install vagrant-vmware-desktop
+```
+
+
+# Run Vagrant
+
+```
+vagrant up
+```
+
+
+# Export VM
+
+Run `ova-cleanup.sh` from within the VM.
+Then:
+
+```
+/Applications/VMware\ Fusion.app/Contents/Library/VMware\ OVF\ Tool/ovftool  --acceptAllEulas  <VMX-PATH> <OVA-PATH>
 ```
