@@ -139,25 +139,28 @@ apt install -y libstdc++-12-dev
 
 apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
 
-curl https://pyenv.run | bash
+su - $USERNAME -c "curl https://pyenv.run | bash"
 
-cat <<EOF >/home/$USERNAME/.bash_profile
+su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
+
+cat <<'EOF' >>/home/$USERNAME/.bash_profile
 export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 EOF
 
-cat <<EOF >/home/$USERNAME/.bashrc
+cat <<'EOF' >>/home/$USERNAME/.bashrc
 eval "$(pyenv virtualenv-init -)"
 EOF
 
-su - $USERNAME -c 'source ~/.bashrc && pyenv install 3.9.16'
+su - $USERNAME -c 'source ~/.bash_profile && pyenv install 3.9.16'
 
 
 
 
 # Install Pwndbg for buffer overflow labs
 # (uses "sudo", we previously disabled the password prompt)
+su - $USERNAME -c "touch /home/$USERNAME/.gdbinit"
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
 
 # Install Qemu-user for cross-platform execution of x86_64 on ARM
@@ -173,6 +176,8 @@ ln -s /usr/x86_64-linux-gnux32/lib/ld-linux.so.2 /lib/ld-linux.so.2
 su - $USERNAME -c "echo 'export LD_LIBRARY_PATH=/usr/x86_64-linux-gnu/lib:/usr/x86_64-linux-gnux32/lib32/' >> /home/$USERNAME/.bash_profile"
 
 su - $USERNAME -c "git clone https://github.com/rnatella/gdbinit-qemu-arm && cp gdbinit-qemu-arm/.gdbinit-qemu /home/$USERNAME/ && rm -rf gdbinit-qemu-arm && echo 'source /home/$USERNAME/.gdbinit-qemu' >> /home/$USERNAME/.gdbinit"
+
+su - $USERNAME -c 'echo "alias gdb=\'gdb-multiarch\'" >> /home/$USERNAME/.bashrc'
 
 
 # Install Visual Studio Code and its C/C++ extension
@@ -262,7 +267,7 @@ apt-get install -y libsecret-tools libsecret-common libsecret-1-0 libsecret-1-de
 # fixes: https://stackoverflow.com/questions/73312785/dotnet-sdk-is-installed-but-not-recognized-linux-ubuntu-popos-22-04
 apt -y remove 'dotnet*'
 apt -y remove 'aspnetcore*'
-rm /etc/apt/sources.list.d/microsoft-prod.list
+rm -f /etc/apt/sources.list.d/microsoft-prod.list
 apt update
 
 #curl -L https://aka.ms/gcm/linux-install-source.sh -O
@@ -274,7 +279,7 @@ apt -y install ./gcm-linux_arm64.2.4.1.deb
 rm ./gcm-linux_arm64.2.4.1.deb
 
 
-su - $USERNAME -c 'git-credential-manager-core configure'
+su - $USERNAME -c 'git-credential-manager configure'
 su - $USERNAME -c 'git config --global credential.credentialStore secretservice'
 
 
