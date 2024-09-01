@@ -141,15 +141,18 @@ apt install -y libstdc++-12-dev
 
 apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
 
-curl https://pyenv.run | bash
+su - $USERNAME -c 'curl https://pyenv.run | bash'
 
-cat <<EOF >/home/$USERNAME/.bash_profile
+su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
+su - $USERNAME -c "touch /home/$USERNAME/.bashrc"
+
+cat <<'EOF' >/home/$USERNAME/.bash_profile
 export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 EOF
 
-cat <<EOF >/home/$USERNAME/.bashrc
+cat <<'EOF' >/home/$USERNAME/.bashrc
 eval "$(pyenv virtualenv-init -)"
 EOF
 
@@ -219,7 +222,7 @@ mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
-apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
 
 groupadd docker
 usermod -a -G docker $USERNAME
@@ -242,7 +245,7 @@ apt-get install -y linux-tools-$(uname -r)
 
 # Install password manager for GIT
 apt-get install -y libsecret-tools libsecret-common libsecret-1-0 libsecret-1-dev
-wget `curl -s https://api.github.com/repos/GitCredentialManager/git-credential-manager/releases/latest| jq '.assets[] | select(.name|match("gcm-linux_amd64.*deb$")) | .browser_download_url' | tr -d \"`
+wget `curl -s https://api.github.com/repos/git-ecosystem/git-credential-manager/releases/latest| jq '.assets[] | select(.name|match("gcm-linux_amd64.*deb$")) | .browser_download_url' | tr -d \"`
 dpkg -i gcm-linux_amd64.*.deb
 rm -f gcm-linux_amd64.*.deb
 
@@ -359,6 +362,11 @@ echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 
 netplan generate
 netplan apply
+
+# Avoid 120s timeout on boot
+# https://askubuntu.com/questions/972215/a-start-job-is-running-for-wait-for-network-to-be-configured-ubuntu-server-17-1
+systemctl disable systemd-networkd-wait-online.service
+systemctl mask systemd-networkd-wait-online.service
 
 
 # Widget for showing IP address
