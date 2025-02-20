@@ -193,6 +193,7 @@ EOF
 wget `curl -s https://api.github.com/repos/github/codeql-cli-binaries/releases/latest | jq '.assets[] | select(.name|match("codeql-linux64.zip$")) | .browser_download_url' | tr -d \"`
 unzip codeql-linux64.zip
 mv codeql /opt/
+rm codeql-linux64.zip
 
 
 # Install VSCode extension for CodeQL
@@ -250,7 +251,7 @@ wget `curl -s https://api.github.com/repos/git-ecosystem/git-credential-manager/
 dpkg -i gcm-linux_amd64.*.deb
 rm -f gcm-linux_amd64.*.deb
 
-su - $USERNAME -c 'git-credential-manager-core configure'
+su - $USERNAME -c 'git-credential-manager configure'
 su - $USERNAME -c 'git config --global credential.credentialStore secretservice'
 
 
@@ -341,28 +342,30 @@ apt-get autoremove -y
 # https://askubuntu.com/questions/1373687/automatic-network-card-configuration
 # https://askubuntu.com/questions/71159/network-manager-says-device-not-managed
 # https://askubuntu.com/questions/1290471/ubuntu-ethernet-became-unmanaged-after-update
-##rm -f /etc/netplan/*.yaml
-##cat <<EOF >/etc/netplan/01-wildcard.yaml
-##network:
-##    version: 2
-##    renderer: NetworkManager
-##    ethernets:
-##        zz-all-en-1:
-##            match:
-##                name: "en*"
-##            dhcp4: true
-#        zz-all-en-2:
-#            match:
-#                name: "en*"
-#            dhcp4: true
-##EOF
+rm -f /etc/netplan/*.yaml
+cat <<EOF >/etc/netplan/01-wildcard.yaml
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    all-en-1:
+      match:
+        name: "en*"
+      dhcp4: true
+    all-en-2:
+      match:
+        name: "en*"
+      dhcp4: true
+EOF
 
-##perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
+chmod 600 /etc/netplan/01-wildcard.yaml
 
-##echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
-##netplan generate
-##netplan apply
+echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+
+netplan generate
+netplan apply
 
 # Avoid 120s timeout on boot
 # https://askubuntu.com/questions/972215/a-start-job-is-running-for-wait-for-network-to-be-configured-ubuntu-server-17-1

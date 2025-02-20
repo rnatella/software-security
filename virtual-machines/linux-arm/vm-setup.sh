@@ -92,7 +92,7 @@ apt-get install -y fonts-ubuntu \
 
 snap install snap-store
 
-snap install teams-for-linux
+#snap install teams-for-linux
 
 snap install chromium
 
@@ -185,6 +185,7 @@ su - $USERNAME -c "echo \"alias gdb='gdb-multiarch'\" >> /home/$USERNAME/.bashrc
 #snap install --classic code
 curl -L https://aka.ms/linux-arm64-deb > code_arm64.deb
 apt -y install ./code_arm64.deb
+rm code_arm64.deb
 
 su - $USERNAME -c 'code --install-extension ms-vscode.cpptools'
 
@@ -341,13 +342,13 @@ su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.input-sources sou
 
 
 # Set dark theme
-#apt-get install -y yaru-theme-gtk yaru-theme-gnome-shell
+apt-get install -y yaru-theme-gtk yaru-theme-gnome-shell
 
-#su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell.ubuntu color-scheme prefer-dark"
-#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface gtk-theme Yaru-dark"
-#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell.ubuntu color-scheme prefer-dark"
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface gtk-theme Yaru-dark"
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
 
-#su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark 'file:///usr/share/backgrounds/jj_dark_by_Hiking93.jpg'"
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark 'file:///usr/share/backgrounds/jj_dark_by_Hiking93.jpg'"
 
 
 
@@ -382,6 +383,8 @@ network:
     eth1:
       dhcp4: true
 EOF
+
+chmod 600 /etc/netplan/01-wildcard.yaml
 
 perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
