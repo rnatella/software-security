@@ -178,7 +178,7 @@ su - $USERNAME -c "echo 'export LD_LIBRARY_PATH=/usr/x86_64-linux-gnu/lib:/usr/x
 
 su - $USERNAME -c "git clone https://github.com/rnatella/gdbinit-qemu-arm && cp gdbinit-qemu-arm/.gdbinit-qemu /home/$USERNAME/ && rm -rf gdbinit-qemu-arm && echo 'source /home/$USERNAME/.gdbinit-qemu' >> /home/$USERNAME/.gdbinit"
 
-su - $USERNAME -c 'echo "alias gdb=\'gdb-multiarch\'" >> /home/$USERNAME/.bashrc'
+su - $USERNAME -c "echo \"alias gdb='gdb-multiarch'\" >> /home/$USERNAME/.bashrc"
 
 
 # Install Visual Studio Code and its C/C++ extension
