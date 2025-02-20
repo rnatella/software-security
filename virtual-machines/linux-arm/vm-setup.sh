@@ -142,6 +142,7 @@ apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsq
 su - $USERNAME -c "curl https://pyenv.run | bash"
 
 su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
+su - $USERNAME -c "touch /home/$USERNAME/.bashrc"
 
 cat <<'EOF' >>/home/$USERNAME/.bash_profile
 export PYENV_ROOT="$HOME/.pyenv"
@@ -240,7 +241,7 @@ mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
-apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
 
 groupadd docker
 usermod -a -G docker $USERNAME

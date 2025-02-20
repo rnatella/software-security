@@ -2,7 +2,7 @@
 
 set -xe
 
-VM_NAME="software-security"
+OVA_NAME="software-security"
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -30,6 +30,7 @@ function wait_for_tcp_port {
 
 SSH_PORT=`vagrant port --guest 22 ${VM_TYPE}`
 VB_UUID=`cat .vagrant/machines/default/virtualbox/id`
+VB_NAME=`VBoxManage list vms |grep VB_UUID |perl -n -e '/\"(.*)\"/; print $1'`
 
 
 # To set "safe" ACPI shutdown by default for Virtualbox
@@ -46,12 +47,12 @@ wait_vm_shutdown ${VB_UUID}
 
 # Remove *-configdrive.vmdk
 VBoxManage storageattach ${VB_UUID} --storagectl "SCSI" --port 1 --medium none
-UNUSED_VMDK_UUID=`VBoxManage list  hdds|perl -n -e '$uuid = $1 if(/^UUID:\s+(.+)$/); if(/^Location:\s+(.+)$/) { $location = $1; print "$location,$uuid\n" }' | grep ${VM_NAME} | grep "\-configdrive" | awk -F, '{print $2}'`
+UNUSED_VMDK_UUID=`VBoxManage list  hdds|perl -n -e '$uuid = $1 if(/^UUID:\s+(.+)$/); if(/^Location:\s+(.+)$/) { $location = $1; print "$location,$uuid\n" }' | grep ${VB_NAME} | grep "\-configdrive" | awk -F, '{print $2}'`
 if [ "x${UNUSED_VMDK_UUID}" != "x" ]
 then
     VBoxManage closemedium  disk ${UNUSED_VMDK_UUID} --delete
 fi
 
-rm -f ${VM_NAME}.ova
-VBoxManage export ${VB_UUID} -o ${VM_NAME}.ova
+rm -f ${OVA_NAME}.ova
+VBoxManage export ${VB_UUID} -o ${OVA_NAME}.ova
 
