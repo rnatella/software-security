@@ -141,25 +141,28 @@ apt install -y libstdc++-12-dev
 
 apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
 
-curl https://pyenv.run | bash
+su - $USERNAME -c "curl https://pyenv.run | bash"
 
-cat <<EOF >/home/$USERNAME/.bash_profile
+su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
+
+cat <<'EOF' >/home/$USERNAME/.bash_profile
 export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 EOF
 
-cat <<EOF >/home/$USERNAME/.bashrc
+cat <<'EOF' >>/home/$USERNAME/.bashrc
 eval "$(pyenv virtualenv-init -)"
 EOF
 
-su - $USERNAME -c 'source ~/.bashrc && pyenv install 3.9.16'
+su - $USERNAME -c 'source ~/.bash_profile && pyenv install 3.9.16'
 
 
 
 
 # Install Pwndbg for buffer overflow labs
 # (uses "sudo", we previously disabled the password prompt)
+su - $USERNAME -c "touch /home/$USERNAME/.gdbinit"
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
 
 
@@ -337,29 +340,33 @@ apt-get autoremove -y
 # https://askubuntu.com/questions/1373687/automatic-network-card-configuration
 # https://askubuntu.com/questions/71159/network-manager-says-device-not-managed
 # https://askubuntu.com/questions/1290471/ubuntu-ethernet-became-unmanaged-after-update
-rm -f /etc/netplan/*.yaml
-cat <<EOF >/etc/netplan/01-wildcard.yaml
-network:
-    version: 2
-    renderer: NetworkManager
-    ethernets:
-        zz-all-en-1:
-            match:
-                name: "en*"
-            dhcp4: true
+##rm -f /etc/netplan/*.yaml
+##cat <<EOF >/etc/netplan/01-wildcard.yaml
+##network:
+##    version: 2
+##    renderer: NetworkManager
+##    ethernets:
+##        zz-all-en-1:
+##            match:
+##                name: "en*"
+##            dhcp4: true
 #        zz-all-en-2:
 #            match:
 #                name: "en*"
 #            dhcp4: true
-EOF
+##EOF
 
-perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
+##perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
 
-echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+##echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 
-netplan generate
-netplan apply
+##netplan generate
+##netplan apply
 
+# Avoid 120s timeout on boot
+# https://askubuntu.com/questions/972215/a-start-job-is-running-for-wait-for-network-to-be-configured-ubuntu-server-17-1
+systemctl disable systemd-networkd-wait-online.service
+systemctl mask systemd-networkd-wait-online.service
 
 # Widget for showing IP address
 #add-apt-repository -y ppa:nico-marcq/indicator-ip
@@ -408,6 +415,12 @@ perl -p -i -e '$_=undef if(/^'$USERNAME' ALL=\(ALL\)\sNOPASSWD:/)' /etc/sudoers
 
 # Setup Git repo with class materials
 su - $USERNAME -c "git clone https://github.com/rnatella/software-security && cd software-security && git submodule update --init --recursive"
+
+# Build containers for labs
+su - $USERNAME -c "cd ~/software-security/web-security/xss-elgg && docker compose build"
+su - $USERNAME -c "cd ~/software-security/web-security/csrf-elgg && docker compose build"
+su - $USERNAME -c "cd ~/software-security/web-security/sql-injection && docker compose build"
+su - $USERNAME -c "cd ~/software-security/web-security/session-hijacking && docker compose build"
 
 
 shutdown -r now
