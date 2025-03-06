@@ -38,7 +38,7 @@ Run `ova-cleanup.sh` from within the VM.
 Then:
 
 ```
-/Applications/VMware\ Fusion.app/Contents/Library/VMware\ OVF\ Tool/ovftool  --acceptAllEulas  <VMX-PATH> <OVA-PATH>
+/Applications/VMware\ Fusion.app/Contents/Library/VMware\ OVF\ Tool/ovftool  --acceptAllEulas <OVA-PATH> <VMX-PATH>
 ```
 
 
