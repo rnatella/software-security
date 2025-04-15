@@ -2,7 +2,7 @@ import java
 import semmle.code.java.dataflow.DataFlow::DataFlow
 
 from Parameter tainted, VarAccess callFooArg, 
-     MethodAccess callFoo
+     MethodCall callFoo
 where tainted.getCallable().getName() = "func" and
       callFoo.getMethod().getName() = "callFoo" and
       callFoo.getArgument(0) = callFooArg and

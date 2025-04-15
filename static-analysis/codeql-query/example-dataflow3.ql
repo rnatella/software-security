@@ -2,7 +2,7 @@ import java
 import semmle.code.java.dataflow.DataFlow::DataFlow
 
 
-from MethodAccess secret, MethodAccess print
+from MethodCall secret, MethodCall print
 where secret.getMethod().getName() = "getSecret" and
       secret.getMethod().getDeclaringType().hasQualifiedName("it.unina", "DataFlow2") and
       print.getMethod().getName() = "println" and
