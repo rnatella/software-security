@@ -15,7 +15,7 @@ To make our triaging job easier, we will have CodeQL do this analysis for us.
 
 You will now write a query to track the flow of tainted data from network-controlled integers to the `memcpy` length argument. As a result you will find 9 real vulnerabilities!
 
-To achieve this, we’ll use the CodeQL [taint tracking](https://codeql.github.com/docs/codeql-language-guides/analyzing-data-flow-in-cpp/) library. This library allows you to describe **sources** and **sinks**, and its predicate `hasFlowPath` holds true when tainted data from a given source flows to a sink.
+To achieve this, we’ll use the CodeQL [taint tracking](https://codeql.github.com/docs/codeql-language-guides/analyzing-data-flow-in-cpp/) library. This library allows you to describe **sources** and **sinks**, and its predicate `flowPath` holds true when tainted data from a given source flows to a sink.
 
 ### :keyboard: Activity: Write a taint tracking query
 
@@ -40,25 +40,26 @@ To achieve this, we’ll use the CodeQL [taint tracking](https://codeql.github.c
 
 import cpp
 import semmle.code.cpp.dataflow.TaintTracking
-import DataFlow::PathGraph
 
 class NetworkByteSwap extends Expr {
   // TODO: copy from previous step
 }
 
-class Config extends TaintTracking::Configuration {
-  Config() { this = "NetworkToMemFuncLength" }
+module MyConfig implements DataFlow::ConfigSig {
 
-  override predicate isSource(DataFlow::Node source) {
+  predicate isSource(DataFlow::Node source) {
     // TODO
   }
-  override predicate isSink(DataFlow::Node sink) {
+  predicate isSink(DataFlow::Node sink) {
     // TODO
   }
 }
 
-from Config cfg, DataFlow::PathNode source, DataFlow::PathNode sink
-where cfg.hasFlowPath(source, sink)
+module MyTaint = TaintTracking::Global<MyConfig>;
+import MyTaint::PathGraph
+
+from MyTaint::PathNode source, MyTaint::PathNode sink
+where MyTaint::flowPath(source, sink) 
 select sink, source, sink, "Network byte swap flows to memcpy"
 ```
 
