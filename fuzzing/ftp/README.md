@@ -134,7 +134,7 @@ $ cd ..
 ```
 
 To perform fuzzing on the FTP server, first run the process monitor.
-On crashes of the FTP server, it will store the core dump, and restart the FTP server for the next test.
+On crashes of the FTP server, it will store the core dump ("coredumps" folder), and restart the FTP server for the next test.
 
 ```
 $ ulimit -c unlimited
@@ -142,7 +142,7 @@ $ sudo bash -c 'echo core > /proc/sys/kernel/core_pattern'
 $ sudo bash -c 'echo 0 > /proc/sys/kernel/core_uses_pid'
 $ sudo systemctl disable apport.service
 
-$ python3 boofuzz-fuzzer/process_monitor_unix.py
+$ python3 boofuzz-fuzzer/process_monitor_unix.py -d ./coredumps
 
 [04:11.23] Process Monitor PED-RPC server initialized:
 [04:11.23] 	 listening on:  0.0.0.0:26002
