@@ -1,0 +1,51 @@
+diff -uNr hpaftpd-1.05.old/hpaftpd.c hpaftpd-1.05.new/hpaftpd.c
+--- hpaftpd-1.05.old/hpaftpd.c	2007-07-01 09:47:45.000000000 +0000
++++ hpaftpd-1.05.new/hpaftpd.c	2025-09-19 16:26:16.935909228 +0000
+@@ -88,7 +88,7 @@
+ #define CMD_BAD_OPTIONS		1
+ #define CMD_VERSION		2
+ 
+-//#define __DBG__		1		/* Enable debug mode (without deamon()) */
++#define __DBG__		1		/* Enable debug mode (without deamon()) */
+ //#define __DBG_USER__	1
+ 
+ #ifdef __DBG__
+@@ -365,7 +365,7 @@
+     if(chdir(path))
+         snprintf(obuf, BUF_SIZE, "550 CWD \"%s\" failure.\r\n", arg);
+     else {
+-        snprintf(obuf, BUF_SIZE, "250 CWD comamnd ok.\r\n", arg);
++        snprintf(obuf, BUF_SIZE, "250 CWD comamnd ok.\r\n");
+         getcwd(ftpc->cwd, PATH_MAX);
+     }
+     
+@@ -689,7 +689,7 @@
+     DATA_CONN *dc;
+     char *mode;
+     
+-    __DBG("open_list_nlst_retr_stor: ftpc->data_serv %X, arg %s\n", 
++    __DBG("open_list_nlst_retr_stor: ftpc->data_serv %p, arg %s\n", 
+ 	    ftpc->data_serv, ftpc->arg);
+     dc = ftpc->data_conn->private_data;
+     chdir(ftpc->cwd);			/* If called from dc_onconn */
+@@ -1344,7 +1344,7 @@
+ }
+ 
+ 
+-main(int argc, char *argv[])
++int main(int argc, char *argv[])
+ {
+     int rc;
+ 
+diff -uNr hpaftpd-1.05.old/nb.h hpaftpd-1.05.new/nb.h
+--- hpaftpd-1.05.old/nb.h	2007-06-18 21:02:03.000000000 +0000
++++ hpaftpd-1.05.new/nb.h	2025-09-19 16:15:00.561771916 +0000
+@@ -70,7 +70,7 @@
+ extern NB_SERVER *nbs;
+ extern NB_CONN *nbc;
+ 
+-enum {
++typedef enum {
+     NB_OK,		/* 0 - No errors */
+     NB_ERROR,		/* 1 - Some error */
+     NB_MEMORY,		/* 2 - Memory allocation error */

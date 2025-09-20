@@ -1,8 +1,10 @@
 # Building and running the vulnerable FTP server
 
-Patch and build the FTP server:
+Move to the "ftp-server" folder, and patch and build the FTP server:
 
 ```
+$ cd ftp-server
+
 $ tar zxf hpaftpd.tgz
 
 $ patch -p1 -d hpaftpd-1.05/ < hpaftpd-debug.patch
@@ -18,30 +20,34 @@ $ cd ..
 
 To test that the FTP server actually works, run this command:
 ```
-$ ./hpaftpd-1.05/hpaftpd -p2121  -l -unobody
+$ cd hpaftpd-1.05
+
+$ fakechroot fakeroot ./hpaftpd -l -p2121 -unobody -d../ftp-root/
 ```
 
-**Note**: To make it easier to run and fuzz the server, we are running the FTP server without chroot jailing and without de-privileging.
+**Note**: For testing purposes, we are running the FTP server in a "fake" chroot jail (using "fakechroot") and "fake" root (using "fakeroot") for de-privileging. Using a real chroot jail and de-privileging would require root privileges, or to use "sudo", which make it more difficult to collect coredumps.
 
 
-On another shell, try to connect to the FTP server:
+On another shell, try to connect to the FTP server (with "anonymous" both as username and password):
 ```
 $ ftp localhost 2121
 Connected to localhost.
+
 220 HighPerfomanceAnonymousFTPServer
-Name (localhost:so): anonymous
+Name (localhost:unina): anonymous
 331 Password required for anonymous
-Password:
+Password: 
 
 230 User anonymous logged in
 Remote system type is UNIX.
+Using binary mode to transfer files.
 
 ftp> ls
-200 Command ok.
+227 Entering Passive Mode (127,0,0,1,4,0).
 150 Open data connection
-drwx------    2 root root     16384 Sep 27 18:53 lost+found
-drwxr-xr-x    2 root root      4096 Jul 31 18:27 mnt
-....
+drwxr-xr-x    2 root root      4096 Sep 19 17:54 .
+drwxr-xr-x    2 root root      4096 Sep 19 17:54 ..
+-rw-r--r--    1 root root         5 Sep 19 16:13 ciao.txt
 226 Transfer complete
 
 ftp> pwd
@@ -53,7 +59,7 @@ ftp> quit
 
 
 
-To **make the FTP server vulnerable**, patch the source code to inject a vulnerability:
+To **make the FTP server vulnerable**, patch the source code to inject a buffer overflow vulnerability:
 ```
 $ patch -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
 ```
@@ -69,23 +75,7 @@ $ patch -R -p1 -d hpaftpd-1.05/ < hpaftpd-vulnerable.patch
 
 # metasploit (generation fuzzing)
 
-To install metasploit on Ubuntu 22.04:
-
-```
-$ sudo apt install gem ruby-rubygems
-$ sudo gem update
-
-$ sudo apt install ruby-dev ruby-pg libpq-dev libpcap-dev libsqlite3-dev
-
-$ git clone https://github.com/rapid7/metasploit-framework.git
-
-$ cd metasploit-framework/
-$ sudo gem install bundler
-$ bundle install
-```
-
-
-Then, run metasploit with:
+Run metasploit with "msfconsole", then use the following commands to enable the fuzzer:
 ```
 $ ./msfconsole
 
@@ -124,29 +114,21 @@ msf6 auxiliary(fuzzers/ftp/ftp_pre_post) > run
 
 # boofuzz (generation fuzzing)
 
-The version of boofuzz in this repo works with Python3 up to version 3.9.
-If you have a more recent version, you can use `pyenv` to run version 3.9.
-To install `pyenv`, see the instructions at the end of this guide.
-To install and to switch to Python 3.9.16 (only in the current working directory):
+Move to the "boofuzz" folder, and clone the submodule with boofuzz:
 
 ```
-$ pyenv install 3.9.16
+$ cd boofuzz
 
-$ pyenv local 3.9.16
-```
-
-Clone the submodule with boofuzz:
-
-```
 $ git submodule update --init --recursive
 ```
 
 Patch and install boofuzz:
 
 ```
-$ patch -d boofuzz/ -p1 < boofuzz-isalive.patch
 
-$ cd boofuzz
+$ patch -d boofuzz-fuzzer/ -p1 < boofuzz-isalive.patch
+
+$ cd boofuzz-fuzzer
 $ pip3 install .
 $ cd ..
 ```
@@ -160,7 +142,7 @@ $ sudo bash -c 'echo core > /proc/sys/kernel/core_pattern'
 $ sudo bash -c 'echo 0 > /proc/sys/kernel/core_uses_pid'
 $ sudo systemctl disable apport.service
 
-$ python3 boofuzz/process_monitor_unix.py
+$ python3 boofuzz-fuzzer/process_monitor_unix.py
 
 [04:11.23] Process Monitor PED-RPC server initialized:
 [04:11.23] 	 listening on:  0.0.0.0:26002
@@ -187,10 +169,12 @@ Install `scapy`:
 $ pip3 install scapy
 ```
 
-Clone mutiny from:
+Move to the "mutiny" folder, and clone the submodule with mutiny:
 
 ```
-$ git clone https://github.com/Cisco-Talos/mutiny-fuzzer
+$ cd mutiny
+
+$ git submodule update --init --recursive
 ```
 
 Mutiny is built on top of `radamsa`, a command-line fuzzing tool.
@@ -205,16 +189,18 @@ $ cd ..
 
 ```
 
-To perform fuzzing through mutation, you need to collect a sample of FTP traffic in PCAP format:
-```
-$ sudo tcpdump -i lo  -w ftp.pcap "port 2121"
-```
+To perform fuzzing through mutation, you need to use an existing FTP traffic trace in PCAP format. You can find in this repo a sample PCAP file.
 
-You can find in this repo a sample PCAP file.
 To print the PCAP on the console:
 ```
 $ tshark -r  ftp.pcap -V
 ```
+
+If you need to collect your own sample of FTP traffic in PCAP format:
+```
+$ sudo tcpdump -i lo  -w ftp.pcap "port 2121"
+```
+
 
 Configure the fuzzer with the PCAP file, by running `mutiny_prep.py` as follows.
 When it asks for `combine payloads into single messages`, you can reply `n`.
@@ -232,43 +218,4 @@ Then, run the fuzzer:
 $ python3 mutiny.py ftp-0.fuzzer 127.0.0.1
 ```
 
-
-# Pyenv
-
-To install Pyenv:
-```
-curl https://pyenv.run | bash
-```
-
-Put the following in `~/.bash_profile`:
-```
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-```
-
-Put the following in `~/.bashrc`:
-```
-eval "$(pyenv virtualenv-init -)"
-```
-
-Log-out and then log-in again. Check that Pyenv works with:
-```
-pyenv install --list
-```
-
-You can install an additional Python version with:
-```
-pyenv install 2.7.18
-```
-
-To switch to a specific version (only in the current working dir):
-```
-pyenv local 2.7.18
-```
-
-On Ubuntu 22.04, you may need to install extern dependencies for Python, such as:
-```
-$ sudo apt-get install build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
-```
 
