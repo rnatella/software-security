@@ -138,7 +138,7 @@ On crashes of the FTP server, it will store the core dump ("coredumps" folder), 
 
 ```
 $ ulimit -c unlimited
-$ sudo bash -c 'echo core > /proc/sys/kernel/core_pattern'
+$ sudo bash -c "echo $PWD/core > /proc/sys/kernel/core_pattern"
 $ sudo bash -c 'echo 0 > /proc/sys/kernel/core_uses_pid'
 $ sudo systemctl disable apport.service
 
@@ -169,7 +169,7 @@ Install `scapy`:
 $ pip3 install scapy
 ```
 
-Move to the "mutiny" folder, and clone the submodule with mutiny:
+Move to the "mutiny" folder. If you did not previously, clone the submodule with mutiny:
 
 ```
 $ cd mutiny
