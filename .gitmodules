@@ -16,3 +16,6 @@
 [submodule "fuzzing/ftp/mutiny-fuzzer"]
 	path = fuzzing/ftp/mutiny/mutiny-fuzzer
 	url = https://github.com/Cisco-Talos/mutiny-fuzzer
+[submodule "fuzzing/ftp/boofuzz/boofuzz-fuzzer"]
+	path = fuzzing/ftp/boofuzz/boofuzz-fuzzer
+	url = https://github.com/jtpereyda/boofuzz
