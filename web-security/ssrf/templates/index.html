@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Imposta profile image</title>
+  </head>
+  <body>
+    <h1>Imposta profile image</h1>
+    <form action="/pfp" method="get">
+      <label for="url">URL immagine:</label>
+      <input type="url" id="url" name="url" placeholder="https://example.com/image.png" required>
+      <button type="submit">Invia</button>
+    </form>
+
+    <h2>Anteprima immagine locale</h2>
+    <img src="/profile.png" alt="Profile image" style="max-width:300px; max-height:300px;"/>
+  </body>
+</html>
