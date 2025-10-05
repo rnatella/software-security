@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lista utenti</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:24px}
+    ul{list-style:none;padding:0}
+    li{margin:6px 0}
+    a{color:#0366d6;text-decoration:none}
+  </style>
+</head>
+<body>
+  <h1>Utenti</h1>
+  {% if users %}
+    <ul>
+      {% for u in users %}
+        <li><a href="/profile?image={{ u|urlencode }}.png">{{ u }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nessun utente trovato.</p>
+  {% endif %}
+</body>
+</html>
