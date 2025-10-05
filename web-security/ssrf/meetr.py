@@ -1,9 +1,7 @@
-from flask import Flask, request, render_template
-from urllib.parse import urlparse
-import http.client
 import os
-from flask import send_from_directory
 import requests
+from flask import Flask, request, render_template
+from flask import send_from_directory
 
 
 class user:
@@ -24,7 +22,7 @@ app = Flask(__name__)
 
 @app.route('/pfp')
 def pfp():
-    
+
     url = request.args.get('url')
 
     response = requests.get(url)
@@ -32,7 +30,7 @@ def pfp():
     img_data = response.content
 
     user.updateProfileImage(img_data)
-    
+
     return render_template('index.html')
 
 
@@ -48,4 +46,4 @@ def serve_profile():
 
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run(port=8080)
