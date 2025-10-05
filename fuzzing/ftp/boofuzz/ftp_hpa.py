@@ -2,7 +2,7 @@
 # Designed for use with boofuzz v0.2.0
 
 from boofuzz import *
-
+import os
 
 def main():
     """
@@ -15,7 +15,8 @@ def main():
     substitute any FTP server.
     """
     target_ip = "127.0.0.1"
-    start_cmd = ["./hpaftpd-1.05/hpaftpd", "-p2121", "-l", "-unobody"]
+    ftp_folder = os.path.dirname(os.path.realpath(__file__)) + "/.."
+    start_cmd = ["fakechroot", "fakeroot", ftp_folder + "/ftp-server/hpaftpd-1.05/hpaftpd", "-p2121", "-l", "-unobody", "-d" + ftp_folder + "/ftp-server/ftp-root"]
 
     # initialize the process monitor
     # this assumes that prior to starting boofuzz you started the process monitor

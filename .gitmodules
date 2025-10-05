@@ -4,9 +4,6 @@
 [submodule "fuzzing/libxml2/libxml2"]
 	path = fuzzing/libxml2/libxml2
 	url = https://github.com/GNOME/libxml2
-[submodule "fuzzing/ftp/boofuzz"]
-	path = fuzzing/ftp/boofuzz
-	url = https://github.com/jtpereyda/boofuzz
 [submodule "fuzzing/go-fuzz-corpus"]
 	path = fuzzing/go-fuzz-corpus
 	url = https://github.com/dvyukov/go-fuzz-corpus
@@ -17,5 +14,8 @@
 	path = virtual-machines/windows/Windows-10-optimize-script
 	url = https://github.com/Fahim732/Windows-10-optimize-script
 [submodule "fuzzing/ftp/mutiny-fuzzer"]
-	path = fuzzing/ftp/mutiny-fuzzer
+	path = fuzzing/ftp/mutiny/mutiny-fuzzer
 	url = https://github.com/Cisco-Talos/mutiny-fuzzer
+[submodule "fuzzing/ftp/boofuzz/boofuzz-fuzzer"]
+	path = fuzzing/ftp/boofuzz/boofuzz-fuzzer
+	url = https://github.com/jtpereyda/boofuzz
