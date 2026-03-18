@@ -3,8 +3,8 @@
 # Disable configuration wizards in apt (use defaults)
 export DEBIAN_FRONTEND=noninteractive
 
-export USERNAME="unina"
-export PASSWORD="unina"
+export USERNAME="swsec"
+export PASSWORD="swsec"
 
 
 # Create user
@@ -35,6 +35,10 @@ apt-get install -y language-pack-it language-pack-gnome-it language-pack-it-base
 update-locale LANG=it_IT.UTF-8 LANGUAGE= LC_MESSAGES= LC_COLLATE= LC_CTYPE=
 
 
+# Timezone
+timedatectl set-timezone Europe/Rome
+
+
 # Install guest OS tools
 apt-get install -y build-essential
 apt-get install -y linux-headers-$(uname -r)
@@ -61,7 +65,8 @@ apt-get install -y git \
                    manpages-posix-dev \
                    llvm \
                    lldb \
-                   clang
+                   clang \
+                   cmake
 
 
 
@@ -76,8 +81,7 @@ apt-get install -y fonts-ubuntu \
                    network-manager \
                    network-manager-gnome \
                    jq \
-                   firefox \
-                   firefox-locale-it \
+                   python3-pip \
                    hunspell-it \
                    witalian \
                    evince \
@@ -88,9 +92,15 @@ apt-get install -y fonts-ubuntu \
                    eog \
                    eog-plugins
 
+
 # was: ttf-ubuntu-font-family
 
+systemctl restart gdm3
+
+
 snap install snap-store
+
+snap install firefox
 
 #snap install teams-for-linux
 
@@ -99,7 +109,7 @@ snap install chromium
 
 # Misc packages for examples from lectures
 apt-get install -y cgroup-tools \
-                   openjdk-11-jdk
+                   openjdk-21-jdk
 
 
 # Install basic web development and hacking tools
@@ -112,20 +122,40 @@ apt-get install -y php-cli \
                    sqlmap \
                    wireshark \
                    tshark \
+                   tcpick \
                    tweak \
-                   python3-venv
+                   python3-venv \
+                   sqlite
 
+apt-get install -y moreutils	# sponge
+
+
+pip3 install flask
 
 systemctl disable apache2
 systemctl stop apache2
+
+
+# User configuration files
+su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
+su - $USERNAME -c "touch /home/$USERNAME/.bashrc"
+
 
 snap install ngrok
 #snap install zaproxy --classic
 #snap install hetty
 snap install metasploit-framework
 
+# Fix dependency for pwntools
+su - $USERNAME -c 'git clone https://github.com/capstone-engine/capstone && cd capstone/ && cd bindings/python/ && python3 setup.py bdist_wheel && cd dist/ && pip3 install capstone-*.whl'
+
 pip3 install pwntools
-pip3 install flask
+
+su - $USERNAME -c 'touch ~/.pwn.conf'
+cat <<'EOF' >>/home/$USERNAME/.pwn.conf
+[update]
+interval=never
+EOF
 
 apt install -y python3-requests python3-bs4 python3-scapy
 
@@ -135,34 +165,42 @@ apt install -y afl++
 apt install -y libstdc++-12-dev
 
 
+# Install fakechroot and fakeroot for running FTP server for fuzzing
+apt install -y fakechroot fakeroot
+
+
 # Install pyenv (dependency for basic fuzzing examples)
 
-apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
+#apt install -y zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev tk-dev
 
-su - $USERNAME -c "curl https://pyenv.run | bash"
+#su - $USERNAME -c "curl https://pyenv.run | bash"
 
-su - $USERNAME -c "touch /home/$USERNAME/.bash_profile"
-su - $USERNAME -c "touch /home/$USERNAME/.bashrc"
+#cat <<'EOF' >>/home/$USERNAME/.bash_profile
+#export PYENV_ROOT="$HOME/.pyenv"
+#[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+#eval "$(pyenv init -)"
+#EOF
 
-cat <<'EOF' >>/home/$USERNAME/.bash_profile
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-EOF
+#cat <<'EOF' >>/home/$USERNAME/.bashrc
+#
+#eval "$(pyenv virtualenv-init -)"
+#
+#EOF
 
-cat <<'EOF' >>/home/$USERNAME/.bashrc
-eval "$(pyenv virtualenv-init -)"
-EOF
-
-su - $USERNAME -c 'source ~/.bash_profile && pyenv install 3.9.16'
+#su - $USERNAME -c 'source ~/.bash_profile && pyenv install 3.9.16'
 
 
+
+# Path for pwntools utilities at command line
+echo 'export PATH=$PATH:~/.local/bin/' >> /home/$USERNAME/.bash_profile
 
 
 # Install Pwndbg for buffer overflow labs
 # (uses "sudo", we previously disabled the password prompt)
 su - $USERNAME -c "touch /home/$USERNAME/.gdbinit"
 su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
+echo "set show-tips off" >>/home/$USERNAME/.gdbinit
+
 
 # Install Qemu-user for cross-platform execution of x86_64 on ARM
 
@@ -178,7 +216,12 @@ su - $USERNAME -c "echo 'export LD_LIBRARY_PATH=/usr/x86_64-linux-gnu/lib:/usr/x
 
 su - $USERNAME -c "git clone https://github.com/rnatella/gdbinit-qemu-arm && cp gdbinit-qemu-arm/.gdbinit-qemu /home/$USERNAME/ && rm -rf gdbinit-qemu-arm && echo 'source /home/$USERNAME/.gdbinit-qemu' >> /home/$USERNAME/.gdbinit"
 
-su - $USERNAME -c "echo \"alias gdb='gdb-multiarch'\" >> /home/$USERNAME/.bashrc"
+su - $USERNAME -c "echo \"alias gdb='gdb-multiarch'\" >> /home/$USERNAME/.bash_profile"
+
+
+# GDB quiet mode
+su - $USERNAME -c "touch /home/$USERNAME/.gdbearlyinit"
+echo "set startup-quietly on" >/home/$USERNAME/.gdbearlyinit
 
 
 # Install Visual Studio Code and its C/C++ extension
@@ -201,38 +244,94 @@ cat <<EOF >/home/$USERNAME/.config/Code/User/settings.json
     "extensions.ignoreRecommendations": true,
     "extensions.autoCheckUpdates": false,
     "extensions.autoUpdate": false,
-    "update.mode": "none"
+    "update.mode": "none",
+    "workbench.startupEditor": "none",
+    "window.restoreWindows": "none"
 }
 EOF
 
 
+# Disable keyring prompt at start of VSCode
+if [ -e .vscode/argv.json ]
+then
+    sed '/^[[:blank:]]*#/d;s/\/\/.*//'  /home/$USERNAME/.vscode/argv.json | jq '."password-store"="basic"' | sponge /home/$USERNAME/.vscode/argv.json
+else
+    su - $USERNAME -c "touch /home/$USERNAME/.vscode/argv.json"
+    echo '{ "password-store": "basic" }' >> /home/$USERNAME/.vscode/argv.json
+fi
 
-# Note: CodeQL is not yet supported for Linux/ARM (https://github.com/github/codeql-cli-binaries/issues/97)
+
+# Note: The Linux/x86 CodeQL distribution will be installed, and
+#       and will be configured to run on a native JDK for Linux/ARM
+#       (https://github.com/github/codeql-cli-binaries/issues/97)
 
 # Install CodeQL CLI
-#wget `curl -s https://api.github.com/repos/github/codeql-cli-binaries/releases/latest | jq '.assets[] | select(.name|match("codeql-linux64.zip$")) | .browser_download_url' | tr -d \"`
-#unzip codeql-linux64.zip
-#mv codeql /opt/
+wget `curl -s https://api.github.com/repos/github/codeql-cli-binaries/releases/latest | jq '.assets[] | select(.name|match("codeql-linux64.zip$")) | .browser_download_url' | tr -d \"`
+unzip codeql-linux64.zip
+mv codeql /opt/
+rm codeql-linux64.zip
+
+echo 'export CODEQL_JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64' >> /home/$USERNAME/.bash_profile
 
 
 # Install VSCode extension for CodeQL
 
-#su - $USERNAME -c 'code --install-extension GitHub.vscode-codeql'
+su - $USERNAME -c 'code --install-extension GitHub.vscode-codeql'
 
-#apt install -y moreutils	# sponge
-#su - $USERNAME -c "jq '.\"codeQL.cli.executablePath\" = \"/opt/codeql/codeql\"' /home/$USERNAME/.config/Code/User/settings.json | sponge /home/$USERNAME/.config/Code/User/settings.json"
+su - $USERNAME -c "jq '.\"codeQL.cli.executablePath\" = \"/opt/codeql/codeql\"' /home/$USERNAME/.config/Code/User/settings.json | sponge /home/$USERNAME/.config/Code/User/settings.json"
+su - $USERNAME -c "jq '.\"codeQL.addingDatabases.addDatabaseSourceToWorkspace\" = true' /home/$USERNAME/.config/Code/User/settings.json | sponge /home/$USERNAME/.config/Code/User/settings.json"
 
 
-# Install VSCode environment for CodeQL
-#su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql-starter.git"
+# Install VSCode workspace for CodeQL
+su - $USERNAME -c "git clone --recursive https://github.com/github/vscode-codeql-starter.git"
 # to update: git submodule update --remote
 
 
+# Create desktop shortcut for CodeQL
+wget https://raw.githubusercontent.com/github/vscode-codeql/refs/heads/main/extensions/ql-vscode/media/VS-marketplace-CodeQL-icon.png
+mv VS-marketplace-CodeQL-icon.png /usr/share/pixmaps/codeql.png
+
+cat <<EOF >/usr/share/applications/codeql.desktop
+[Desktop Entry]
+Name=CodeQL for Visual Studio Code
+Comment=Code Editing. Redefined.
+GenericName=Text Editor
+Exec=wmclass.sh CodeQL codeql /usr/share/code/code /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+Icon=codeql
+Type=Application
+StartupWMClass=CodeQL
+StartupNotify=false
+Categories=TextEditor;Development;IDE;
+MimeType=application/x-code-workspace;
+Keywords=vscode;
+EOF
+
+pip install --no-input getgist
+apt -y install wmctrl
+
+getgist -y rnatella wmclass.sh
+chmod +x wmclass.sh
+mv wmclass.sh /usr/local/bin/
+
+# Disable CodeQL extension when running VSCode without the workspace
+perl -p -i -e 'if(/^Exec/) { s/$/ --disable-extension GitHub.vscode-codeql/; }' /usr/share/applications/code.desktop
+
+
 # Java dependencies for CodeQL demo
-#apt install -y maven
+apt install -y maven
 
 
-pip3 install semgrep
+# Other static code analyzers
+
+snap install semgrep
+
+mkdir /opt/joern
+cd /opt/joern
+curl -L "https://github.com/joernio/joern/releases/latest/download/joern-install.sh" -o joern-install.sh
+chmod u+x joern-install.sh
+./joern-install.sh
+rm -f joern-install.sh
+cd -
 
 
 
@@ -288,21 +387,24 @@ su - $USERNAME -c 'git config --global credential.credentialStore secretservice'
 
 # Install Firefox from PPA maintained by Mozilla, replace the snap version to prevent auto-updates
 # https://askubuntu.com/questions/1399383/how-to-install-firefox-as-a-traditional-deb-package-without-snap-in-ubuntu-22/1404401#1404401
-add-apt-repository -y ppa:mozillateam/ppa
-cat <<EOF >/etc/apt/preferences.d/mozilla-firefox
-Package: *
-Pin: release o=LP-PPA-mozillateam
-Pin-Priority: 1001
+#add-apt-repository -y ppa:mozillateam/ppa
+#cat <<EOF >/etc/apt/preferences.d/mozilla-firefox
+#Package: *
+#Pin: release o=LP-PPA-mozillateam
+#Pin-Priority: 1001
+#
+#Package: firefox
+#Pin: version 1:1snap1-0ubuntu2
+#Pin-Priority: -1
+#EOF
 
-Package: firefox
-Pin: version 1:1snap1-0ubuntu2
-Pin-Priority: -1
-EOF
+#snap remove firefox
+#apt update
+#apt install -y firefox firefox-locale-it  --allow-downgrades
 
-snap remove firefox
-apt update
-apt install -y firefox firefox-locale-it  --allow-downgrades
 
+# Prevent snap updates
+snap refresh --hold
 
 
 
@@ -327,7 +429,7 @@ apt-get install -y dbus-x11
 
 
 # Modify "favorite apps" on the dock bar (on the left)
-su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell favorite-apps \"['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'code.desktop', 'firefox_firefox.desktop']\""
+su - $USERNAME -c "dbus-launch gsettings set org.gnome.shell favorite-apps \"['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'code.desktop', 'firefox.desktop', 'codeql.desktop']\""
 
 
 
@@ -351,53 +453,52 @@ su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.interface color-s
 su - $USERNAME -c "dbus-launch gsettings set org.gnome.desktop.background picture-uri-dark 'file:///usr/share/backgrounds/jj_dark_by_Hiking93.jpg'"
 
 
+# Set Firefox configuration
 
-# Remove unneeded packages
-apt-get update
-apt-get autoremove -y
+# NOTE: Cross-site cookies will be ENABLED to
+# make the CSRF attack easier to reproduce
 
+su - $USERNAME -c '(firefox --headless &); sleep 10 && killall firefox'
 
-# Set DHCP for all virtual Ethernet NICs
-#cat <<EOF >/etc/systemd/network/99-wildcard.network
-#[Match]
-#Name=en*
-#
-#[Network]
-#DHCP=yes
-#EOF
+FIREFOX_CONFIG_DIR=`echo /home/$USERNAME/snap/firefox/common/.mozilla/firefox/*.default/`
+FIREFOX_CONFIG_USER=$FIREFOX_CONFIG_DIR/user.js
 
-# Set DHCP for all virtual Ethernet NICs (Netplan)
-# https://askubuntu.com/questions/1312096/wired-network-settings-missing-in-ubuntu-desktop-20-10
-# https://serverfault.com/questions/923328/is-there-a-way-to-automatically-add-network-interfaces-to-systemd-networkd-and-o
-# https://askubuntu.com/questions/1373687/automatic-network-card-configuration
-# https://askubuntu.com/questions/71159/network-manager-says-device-not-managed
-# https://askubuntu.com/questions/1290471/ubuntu-ethernet-became-unmanaged-after-update
-rm -f /etc/netplan/*.yaml
-cat <<EOF >/etc/netplan/01-wildcard.yaml
-network:
-  version: 2
-  renderer: NetworkManager
-  ethernets:
-    eth0:
-      dhcp4: true
-    eth1:
-      dhcp4: true
+su - $USERNAME -c "touch ${FIREFOX_CONFIG_USER}"
+
+cat <<EOF >$FIREFOX_CONFIG_USER
+user_pref("browser.contentblocking.category", "custom");
+user_pref("network.cookie.cookieBehavior", 0);
+user_pref("browser.aboutwelcome.didSeeFinalScreen", true);
+user_pref("browser.translations.panelShown", true);
+user_pref("browser.translations.automaticallyPopup", false);
+user_pref("browser.toolbars.bookmarks.visibility", "never");
+user_pref("security.sandbox.warn_unprivileged_namespaces", false);
+user_pref("browser.discovery.enabled", false);
+user_pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
+user_pref("browser.newtabpage.activity-stream.telemetry", false);
+user_pref("app.shield.optoutstudies.enabled", false);
+user_pref("app.normandy.enabled", false);
+user_pref("app.normandy.api_url", "");
+user_pref("signon.autofillForms", false);
+user_pref("signon.formlessCapture.enabled", false);
+user_pref("signon.privateBrowsingCapture.enabled", false);
+user_pref("extensions.pocket.enabled", false);
+user_pref("browser.newtabpage.activity-stream.showSponsored", false);
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
+user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false); 
+user_pref("browser.newtabpage.activity-stream.default.sites", "");
+user_pref("browser.newtabpage.activity-stream.discoverystream.enabled", false);
+user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
+user_pref("network.trr.mode", 5);
 EOF
 
-chmod 600 /etc/netplan/01-wildcard.yaml
 
-perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
-
-echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
-
-netplan generate
-netplan apply
 
 # Avoid 120s timeout on boot
 # https://askubuntu.com/questions/972215/a-start-job-is-running-for-wait-for-network-to-be-configured-ubuntu-server-17-1
 systemctl disable systemd-networkd-wait-online.service
 systemctl mask systemd-networkd-wait-online.service
-
 
 # Widget for showing IP address
 #add-apt-repository -y ppa:nico-marcq/indicator-ip
@@ -447,11 +548,65 @@ perl -p -i -e '$_=undef if(/^'$USERNAME' ALL=\(ALL\)\sNOPASSWD:/)' /etc/sudoers
 # Setup Git repo with class materials
 su - $USERNAME -c "git clone https://github.com/rnatella/software-security && cd software-security && git submodule update --init --recursive"
 
+su - $USERNAME -c "cd /home/$USERNAME/software-security/static-analysis/codeql-uboot && wget https://github.com/github/securitylab/releases/download/u-boot-codeql-database/u-boot_u-boot_cpp-srcVersion_d0d07ba86afc8074d79e436b1ba4478fa0f0c1b5-dist_odasa-2019-07-25-linux64.zip"
+
+
+jq '.folders |= . + [{"path": "../software-security/static-analysis/codeql-query"}]' /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace | sponge /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+jq '.folders |= . + [{"path": "../software-security/static-analysis/codeql-boot"}]' /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace | sponge /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+
+
 # Build containers for labs
 su - $USERNAME -c "cd ~/software-security/web-security/xss-elgg-arm && docker compose build"
 su - $USERNAME -c "cd ~/software-security/web-security/csrf-elgg-arm && docker compose build"
 su - $USERNAME -c "cd ~/software-security/web-security/sql-injection && docker compose build"
 su - $USERNAME -c "cd ~/software-security/web-security/session-hijacking && docker compose build"
+
+
+
+
+
+# Remove unneeded packages
+apt-get update
+apt-get autoremove -y
+
+
+
+
+# Set DHCP for all virtual Ethernet NICs
+#cat <<EOF >/etc/systemd/network/99-wildcard.network
+#[Match]
+#Name=en*
+#
+#[Network]
+#DHCP=yes
+#EOF
+
+# Set DHCP for all virtual Ethernet NICs (Netplan)
+# https://askubuntu.com/questions/1312096/wired-network-settings-missing-in-ubuntu-desktop-20-10
+# https://serverfault.com/questions/923328/is-there-a-way-to-automatically-add-network-interfaces-to-systemd-networkd-and-o
+# https://askubuntu.com/questions/1373687/automatic-network-card-configuration
+# https://askubuntu.com/questions/71159/network-manager-says-device-not-managed
+# https://askubuntu.com/questions/1290471/ubuntu-ethernet-became-unmanaged-after-update
+rm -f /etc/netplan/*.yaml
+cat <<EOF >/etc/netplan/01-wildcard.yaml
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      dhcp4: true
+EOF
+
+chmod 600 /etc/netplan/01-wildcard.yaml
+
+perl -p -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf
+
+echo > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+
+netplan generate
+netplan apply
 
 
 shutdown -r now
