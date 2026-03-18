@@ -64,3 +64,10 @@ rm -rf ova/
 
 Despite this fix, VMware Fusion still imports the VM as "Other" type.
 The correct type can be configured in the settings of the VM, under `General`.
+
+
+
+# To resize disk
+
+See: https://askubuntu.com/a/1402237
+
