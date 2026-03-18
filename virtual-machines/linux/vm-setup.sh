@@ -197,8 +197,13 @@ echo 'export PATH=$PATH:~/.local/bin/' >> /home/$USERNAME/.bash_profile
 
 # Install Pwndbg for buffer overflow labs
 # (uses "sudo", we previously disabled the password prompt)
+
+#su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
+
+curl --proto '=https' --tlsv1.2 -LsSf 'https://install.pwndbg.re' | sh -s -- -t pwndbg-gdb
+
 su - $USERNAME -c "touch /home/$USERNAME/.gdbinit"
-su - $USERNAME -c 'git clone https://github.com/pwndbg/pwndbg && cd pwndbg && DEBIAN_FRONTEND=noninteractive ./setup.sh'
+
 echo "set show-tips off" >>/home/$USERNAME/.gdbinit
 
 
@@ -508,7 +513,8 @@ su - $USERNAME -c "cd /home/$USERNAME/software-security/static-analysis/codeql-u
 
 
 jq '.folders |= . + [{"path": "../software-security/static-analysis/codeql-query"}]' /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace | sponge /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
-jq '.folders |= . + [{"path": "../software-security/static-analysis/codeql-boot"}]' /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace | sponge /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+jq '.folders |= . + [{"path": "../software-security/static-analysis/codeql-uboot"}]' /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace | sponge /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+chown -R $USERNAME:$USERNAME /home/$USERNAME/vscode-codeql-starter/
 
 
 # Build containers for labs
