@@ -269,7 +269,7 @@ cat <<EOF >/usr/share/applications/codeql.desktop
 Name=CodeQL for Visual Studio Code
 Comment=Code Editing. Redefined.
 GenericName=Text Editor
-Exec=wmclass.sh CodeQL codeql /usr/share/code/code /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
+Exec=wmclass.sh CodeQL codeql /snap/bin/code /home/$USERNAME/vscode-codeql-starter/vscode-codeql-starter.code-workspace
 Icon=codeql
 Type=Application
 StartupWMClass=CodeQL
@@ -277,6 +277,39 @@ StartupNotify=false
 Categories=TextEditor;Development;IDE;
 MimeType=application/x-code-workspace;
 Keywords=vscode;
+EOF
+
+cp /snap/code/current/snap/gui/vscode.png /usr/share/pixmaps/vscode.png
+
+cat <<EOF >/usr/share/applications/code.desktop
+[Desktop Entry]
+Name=Visual Studio Code
+Comment=Code Editing. Redefined.
+GenericName=Text Editor
+Exec=code --disable-extension GitHub.vscode-codeql --force-user-env %F
+Icon=vscode
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+Categories=TextEditor;Development;IDE;
+MimeType=application/x-code-workspace;
+Actions=new-empty-window;
+Keywords=vscode;
+
+[Desktop Action new-empty-window]
+Name=New Empty Window
+Name[cs]=Nové prázdné okno
+Name[de]=Neues leeres Fenster
+Name[es]=Nueva ventana vacía
+Name[fr]=Nouvelle fenêtre vide
+Name[it]=Nuova finestra vuota
+Name[ja]=新しい空のウィンドウ
+Name[ko]=새 빈 창
+Name[ru]=Новое пустое окно
+Name[zh_CN]=新建空窗口
+Name[zh_TW]=開新空視窗
+Exec=code --disable-extension GitHub.vscode-codeql --force-user-env --new-window %F
+Icon=vscode
 EOF
 
 pip install --no-input getgist
