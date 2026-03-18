@@ -2,7 +2,7 @@ PLATFORM := $(shell uname -m)
 
 # On ARM computers, cross-compile to x86_64
 ifeq ($(PLATFORM),aarch64)
-        CC = x86_64-linux-gnu-gcc
+	CC = x86_64-linux-gnu-gcc
 endif
 
 all: wisdom-alt wisdom-alt-32
